@@ -1,8 +1,9 @@
 import { CommonModule } from "@angular/common";
-import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
-import { ActivatedRoute, RouterModule } from "@angular/router";
+import { ChangeDetectionStrategy, Component, inject, input } from "@angular/core";
+import { ActivatedRoute, Router, RouterModule } from "@angular/router";
 import { NgbDropdownModule, NgbNavModule, NgbOffcanvasModule } from "@ng-bootstrap/ng-bootstrap";
 
+import { AuthService } from "../auth/auth.service";
 import { RecipeFilterService } from "../components/recipes/recipe-filter.service";
 import { SearchFilters } from "../components/search-filters/search-filters";
 import { environment } from './../../environments/environment';
@@ -26,6 +27,10 @@ import { Link } from "../components/utils/link/link";
 export class Layout {
 
     private readonly filterService = inject(RecipeFilterService);
+    private readonly authService = inject(AuthService);
+    private readonly router = inject(Router);
+
+    public readonly showLayout = input(true);
 
     public readonly bgColor = environment.backgroundColor
     public readonly links = [
@@ -49,4 +54,19 @@ export class Layout {
         toggle.checked = false;
     }
 
+    public isAdmin(): boolean {
+        return this.authService.isAdmin();
+    }
+
+    public isLoggedIn(): boolean {
+        return this.authService.isLoggedIn();
+    }
+
+    public getCurrentUserEmail(): string | null {
+        return (this.authService.currentUser$ as any).value?.email || null;
+    }
+
+    public logout(): void {
+        this.authService.logout();
+    }
 }

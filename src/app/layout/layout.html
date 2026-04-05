@@ -1,3 +1,4 @@
+@if (showLayout()) {
 <input #menuToggle type="checkbox" id="menu-toggle" class="menu-toggle"/>
 
 <header class="navbar navbar-dark {{ bgColor }} ps-3">
@@ -5,6 +6,14 @@
         <span class="hamburger"></span>
     </label>
     <a routerLink="/" class="navbar-brand font-cinzel fw-bold text-white">La taverne de May</a>
+    <div class="ms-auto me-3">
+        @if (!isLoggedIn()) {
+            <a routerLink="/login" class="btn btn-outline-light">Connexion</a>
+        } @else {
+            <span class="text-white me-2">{{ getCurrentUserEmail() }}</span>
+            <button class="btn btn-outline-light" (click)="logout()">Déconnexion</button>
+        }
+    </div>
 </header>
 
 <div class="layout">
@@ -16,7 +25,9 @@
         </div>
 
         <div class="p-3">
-            <app-link display="btn" label="Créer une recette" routerLink="/recipes/add" iconName="create_recipe.png" iconSize="l"></app-link>
+            @if (isAdmin()) {
+                <app-link display="btn" label="Créer une recette" routerLink="/recipes/add" iconName="create_recipe.png" iconSize="l"></app-link>
+            }
 
             <ul class="nav mt-2">
                 @for (link of links; track link) {
@@ -40,3 +51,6 @@
 </div>
 
 <label for="menu-toggle" class="menu-backdrop"></label>
+} @else {
+    <router-outlet></router-outlet>
+}

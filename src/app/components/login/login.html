@@ -1,0 +1,19 @@
+<div class="login-container">
+    <div class="login-card">
+        <h2 class="text-center mb-4">Connexion</h2>
+        <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+            <div class="mb-3">
+                <label for="email" class="form-label">Email</label>
+                <input type="email" class="form-control" id="email" formControlName="email" required>
+            </div>
+            <div class="mb-3">
+                <label for="password" class="form-label">Mot de passe</label>
+                <input type="password" class="form-control" id="password" formControlName="password" required>
+            </div>
+            @if (errorMessage) {
+                <div class="alert alert-danger">{{ errorMessage }}</div>
+            }
+            <button type="submit" class="btn btn-primary w-100" [disabled]="loginForm.invalid">Se connecter</button>
+        </form>
+    </div>
+</div>

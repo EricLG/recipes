@@ -1,4 +1,6 @@
-import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { NavigationEnd, Router } from '@angular/router';
+import { filter } from 'rxjs';
 
 import { Layout } from './layout/layout';
 
@@ -11,6 +13,16 @@ import { Layout } from './layout/layout';
 })
 export class App {
 
-    protected readonly title = signal('La taverne de May');
+    private readonly router = inject(Router);
 
+    protected readonly title = signal('La taverne de May');
+    protected readonly showLayout = signal(true);
+
+    constructor() {
+        this.router.events.pipe(
+            filter(event => event instanceof NavigationEnd)
+        ).subscribe((event: NavigationEnd) => {
+            this.showLayout.set(event.url !== '/login');
+        });
+    }
 }
