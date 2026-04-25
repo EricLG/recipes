@@ -69,4 +69,5 @@ export class Layout {
     public logout(): void {
         this.authService.logout();
     }
+
 }

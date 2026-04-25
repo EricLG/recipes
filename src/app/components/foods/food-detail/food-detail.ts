@@ -4,6 +4,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { distinctUntilChanged, filter, map, shareReplay, switchMap } from 'rxjs';
 
+import { AuthService } from '../../../auth/auth.service';
 import { categoryTranslations, FoodCategory } from './../../../enums/food.enum';
 import { FoodWithMeasuresDto } from './../../../models/food';
 import { FoodService } from './../food.service';
@@ -20,6 +21,9 @@ export class FoodDetail {
     private route = inject(ActivatedRoute);
     private foodSvc = inject(FoodService);
     private router = inject(Router);
+    private svcAuth = inject(AuthService)
+
+    public isAdmin = this.svcAuth.isAdmin();
 
     private readonly foodId$ = this.route.paramMap.pipe(
         map(params => params.get('id')),

@@ -15,16 +15,14 @@ import { FoodService } from './../food.service';
 })
 export class FoodsList {
 
-    private readonly authService = inject(AuthService);
+    private svcAuth = inject(AuthService)
+
+    public isAdmin = this.svcAuth.isAdmin();
 
     public food$!: Observable<FoodDto[]>
 
     constructor(private svc: FoodService) {
         this.food$ = this.svc.getAll();
-    }
-
-    public isAdmin(): boolean {
-        return this.authService.isAdmin();
     }
 
 }

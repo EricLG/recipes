@@ -6,6 +6,7 @@ import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { of } from 'rxjs';
 import { filter, map, switchMap } from 'rxjs/operators';
 
+import { AuthService } from '../../../auth/auth.service';
 import { Icon } from '../../utils/icon/icon';
 import { RecipeCategory, RecipeSeason, seasonTranslations, recipeCategoryTranslations, recipeVegetarianStatusTranslations, RecipeVegetarianStatus } from './../../../enums/recipes.enum';
 import { NutrientsDto } from './../../../models/food';
@@ -32,8 +33,16 @@ const EXCELLENT = 'bi-heart-fill c-green'
 })
 export class RecipeDetail implements OnDestroy {
 
+    private svc = inject(RecipeService);
+    private svcAuth = inject(AuthService)
+    private route = inject(ActivatedRoute);
+    private router = inject(Router);
+
+    public isAdmin = this.svcAuth.isAdmin();
     public wakeLock = false;
+
     private wakeLockSentinel: WakeLockSentinel | null = null;
+
 
     private async requestWakeLock(): Promise<void> {
         try {
@@ -65,9 +74,6 @@ export class RecipeDetail implements OnDestroy {
         this.releaseWakeLock();
     }
 
-    private route = inject(ActivatedRoute);
-    private svc = inject(RecipeService);
-    private router = inject(Router);
 
     // Get recipe ID from route parameters
     private readonly id$ = this.route.paramMap.pipe(

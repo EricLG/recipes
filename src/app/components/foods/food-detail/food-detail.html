@@ -7,8 +7,10 @@
             </div>
             <div>
                 <a class="btn btn-secondary me-2" routerLink="/foods">Retour</a>
-                <button class="btn btn-primary me-2" (click)="edit()">Modifier</button>
-                <button class="btn btn-danger" (click)="remove()">Supprimer</button>
+                @if (isAdmin) {
+                    <button class="btn btn-primary me-2" (click)="edit()">Modifier</button>
+                    <button class="btn btn-danger" (click)="remove()">Supprimer</button>
+                }
             </div>
         </div>
 

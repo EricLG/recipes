@@ -10,8 +10,7 @@
         @if (!isLoggedIn()) {
             <a routerLink="/login" class="btn btn-outline-light">Connexion</a>
         } @else {
-            <span class="text-white me-2">{{ getCurrentUserEmail() }}</span>
-            <button class="btn btn-outline-light" (click)="logout()">Déconnexion</button>
+            <a routerLink="/profile" class="btn btn-outline-light">Mon profil</a>
         }
     </div>
 </header>

@@ -198,10 +198,12 @@
             <label class="form-check-label" for="switchWakelock" >Verrouiller l'écran</label>
         </div>
 
-        <div class="mt-3 hstack gap-3">
-            <button class="btn btn-outline-secondary" (click)="edit()">Modifier</button>
-            <button class="btn btn-outline-danger" (click)="remove()">Supprimer</button>
-        </div>
+        @if (isAdmin) {
+            <div class="mt-3 hstack gap-3">
+                <button class="btn btn-outline-secondary" (click)="edit()">Modifier</button>
+                <button class="btn btn-outline-danger" (click)="remove()">Supprimer</button>
+            </div>
+        }
 
     </div>
 } @else {
