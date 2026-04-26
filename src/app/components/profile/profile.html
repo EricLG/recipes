@@ -1,0 +1,64 @@
+<div class="profile-page">
+    @if (successMessage()) {
+        <div class="alert alert-success" role="status" aria-live="polite">{{ successMessage() }}</div>
+    }
+
+    @if (errorMessage()) {
+        <div class="alert alert-danger" role="alert" aria-live="assertive">{{ errorMessage() }}</div>
+    }
+
+    <div class="card mb-4 profile-card">
+        <div class="card-body">
+            <h1 class="h4 mb-3">Mon profil</h1>
+
+            <div class="mb-3">
+                <label class="form-label">Nom</label>
+                <div class="form-control-plaintext">{{ profile()?.name || '...' }}</div>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Email</label>
+                <div class="form-control-plaintext">{{ profile()?.email || '...' }}</div>
+            </div>
+
+            <button type="button" class="btn btn-outline-secondary" (click)="logout()">Déconnexion</button>
+        </div>
+    </div>
+
+    <div class="card password-card">
+        <div class="card-body">
+            <h2 class="h5 mb-3">Changer le mot de passe</h2>
+            <p class="text-muted mb-4">Le nouveau mot de passe doit contenir au moins 6 caractères.</p>
+
+            <form [formGroup]="profileForm" (ngSubmit)="onSubmit()" novalidate>
+                <div class="mb-3">
+                    <label for="oldPassword" class="form-label">Mot de passe actuel</label>
+                    <input id="oldPassword" type="password" class="form-control" formControlName="oldPassword" [class.is-invalid]="profileForm.controls.oldPassword.invalid && profileForm.controls.oldPassword.touched" aria-describedby="oldPasswordError" />
+                    @if (profileForm.controls.oldPassword.invalid && profileForm.controls.oldPassword.touched) {
+                        <div id="oldPasswordError" class="invalid-feedback">Le mot de passe actuel est requis et doit contenir au moins 6 caractères.</div>
+                    }
+                </div>
+
+                <div class="mb-3">
+                    <label for="newPassword" class="form-label">Nouveau mot de passe</label>
+                    <input id="newPassword" type="password" class="form-control" formControlName="newPassword" [class.is-invalid]="profileForm.controls.newPassword.invalid && profileForm.controls.newPassword.touched" aria-describedby="newPasswordError" />
+                    @if (profileForm.controls.newPassword.invalid && profileForm.controls.newPassword.touched) {
+                        <div id="newPasswordError" class="invalid-feedback">Le nouveau mot de passe doit contenir au moins 6 caractères.</div>
+                    }
+                </div>
+
+                <div class="mb-3">
+                    <label for="confirmPassword" class="form-label">Confirmer le nouveau mot de passe</label>
+                    <input id="confirmPassword" type="password" class="form-control" formControlName="confirmPassword" [class.is-invalid]="(profileForm.controls.confirmPassword.touched && (profileForm.controls.confirmPassword.invalid || profileForm.hasError('passwordMismatch')))" aria-describedby="confirmPasswordError" />
+                    @if (profileForm.controls.confirmPassword.invalid && profileForm.controls.confirmPassword.touched) {
+                        <div id="confirmPasswordError" class="invalid-feedback">Veuillez confirmer votre nouveau mot de passe.</div>
+                    } @else if (profileForm.hasError('passwordMismatch') && profileForm.controls.confirmPassword.touched) {
+                        <div id="confirmPasswordError" class="invalid-feedback">Les mots de passe ne correspondent pas.</div>
+                    }
+                </div>
+
+                <button type="submit" class="btn btn-primary" [disabled]="profileForm.invalid || updating()">Modifier le mot de passe</button>
+            </form>
+        </div>
+    </div>
+</div>
