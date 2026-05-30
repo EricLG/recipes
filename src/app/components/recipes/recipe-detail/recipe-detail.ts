@@ -14,7 +14,7 @@ import { DetailedRecipeDTO } from './../../../models/recipe';
 import { RecipeService } from './../recipe.service';
 
 
-const ERROR = 'bi-x-lg c-red'
+const BAD = 'bi-x-lg c-red'
 const WARNING = 'bi-exclamation-lg c-orange'
 const GOOD = 'bi-check-lg c-green'
 const EXCELLENT = 'bi-heart-fill c-green'
@@ -246,7 +246,7 @@ export class RecipeDetail implements OnDestroy {
         const scaledValueFor1600KCal = value * 1600 / energyKcal
 
         if (scaledValueFor1600KCal < 50) {
-            return ERROR
+            return BAD
         } else if (scaledValueFor1600KCal >= 50 && scaledValueFor1600KCal < 72){
             return WARNING
         } else if (scaledValueFor1600KCal >= 72 && scaledValueFor1600KCal < 96){
@@ -261,13 +261,13 @@ export class RecipeDetail implements OnDestroy {
         const scaledValueFor1600KCal = value * 1600 / energyKcal
 
         if (scaledValueFor1600KCal < 42) {
-            return WARNING
-        } else if (scaledValueFor1600KCal >= 42 && scaledValueFor1600KCal < 63){
             return GOOD
+        } else if (scaledValueFor1600KCal >= 42 && scaledValueFor1600KCal < 63){
+            return EXCELLENT
         } else if (scaledValueFor1600KCal >= 63 && scaledValueFor1600KCal < 71){
             return WARNING
         } else {
-            return ERROR
+            return BAD
         }
     }
 
@@ -288,11 +288,11 @@ export class RecipeDetail implements OnDestroy {
     public getSaltStatus(value: number): string {
 
         if (value < 1.5) {
-            return WARNING
-        } else if (value >= 1.5 && value < 2.5){
             return GOOD
+        } else if (value >= 1.5 && value < 2.5){
+            return EXCELLENT
         } else {
-            return ERROR
+            return BAD
         }
     }
 

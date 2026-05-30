@@ -62,77 +62,76 @@
 
             @if (recipe.remark) {
                 <div class="div5 mb-4">
-                    <h5><app-icon name="detail_recipe_remark.png" alt="Nombre de parts de la recette" class="d-inline me-1"></app-icon>Remarque</h5>
+                    <h5><app-icon name="detail_recipe_remark.png" alt="Remarque" class="d-inline me-1"></app-icon>Remarque</h5>
                     <div class="creamy-card">{{ recipe.remark }}</div>
                 </div>
             }
 
             <div class="bottom-grid">
                 <div class="div6">
-                    <h5><app-icon name="detail_recipe_foods.png" alt="Nombre de parts de la recette" class="d-inline me-1"></app-icon>Ingrédients</h5>
-                    @if (recipe.recipeFoods && recipe.recipeFoods.length > 0) {
-                        <div class="creamy-card">
-                            <ul>
+                    <h5><app-icon name="detail_recipe_foods.png" alt="Liste des ingrédients" class="d-inline me-1"></app-icon>Ingrédients</h5>
+                    <div class="creamy-card">
+                        @if (recipe.recipeFoods && recipe.recipeFoods.length > 0) {
+                            <ul class="mb-0">
                                 @for (recipeFood of recipe.recipeFoods; track recipeFood.id) {
+                                    @let measure = recipeFood.measure.label;
+                                    @let qty = recipeFood.quantity;
+                                    @let classicMeasure = ['g', 'ml'].includes(measure);
+                                    @let unityMeasure = measure === 'unité';
+
                                     <li>
-                                        @if (recipeFood.quantity >= 1000 && recipeFood.measure.label === 'g') {
-                                            <strong>{{ (recipeFood.quantity / 1000).toFixed(2) }} Kg</strong>
-                                        } @else if (recipeFood.quantity >= 1000 && recipeFood.measure.label === 'ml') {
-                                            <strong>{{ (recipeFood.quantity / 1000).toFixed(2) }} L</strong>
+                                        @if (qty >= 1000 && classicMeasure) {
+                                            <strong>{{ (qty / 1000).toFixed(2) }} {{ measure === 'g' ? 'Kg' : 'L' }}</strong>
                                         } @else {
-                                            <strong>{{ recipeFood.quantity }} {{ recipeFood.measure.label }}</strong>
+                                            <strong>{{ qty }} {{ unityMeasure ? '' : measure }} </strong>
                                         }
-                                        <span> de {{ recipeFood.food.name }}</span>
-                                        @if (recipeFood.measure.label !== 'g' && recipeFood.measure.label !== 'ml') {
-                                            <span> ({{ (recipeFood.quantity * recipeFood.measure.grams).toFixed(0) }} g)</span>
+
+                                        <span>{{ unityMeasure ? '' : 'de' }} {{ recipeFood.food.name.toLowerCase() }}</span>
+                                        @if (!classicMeasure) {
+                                            <span> ({{ (qty * recipeFood.measure.grams).toFixed(0) }} g)</span>
                                         }
                                     </li>
                                 }
                             </ul>
-                        </div>
-                    } @else {
-                        <p class="text-muted">Aucun ingrédient.</p>
-                    }
-                    @if (recipe.recipeSubRecipes && recipe.recipeSubRecipes.length > 0) {
-                        <div class="mb-4">
-                            <h5 class="mb-3">Sous-recettes</h5>
-                            <div class="list-group">
-                                @for (subRecipe of recipe.recipeSubRecipes; track subRecipe.id) {
-                                    <div class="list-group-item">
-                                        <div class="d-flex justify-content-between align-items-center">
-                                            <div>
-                                                <strong>{{ subRecipe.quantity }}</strong>
-                                                <span class="ms-2">de {{ subRecipe.childRecipe.name }}</span>
-                                                <span class="ms-2"><a class="btn btn-sm btn-outline-primary" routerLink="/recipes/{{ subRecipe.childRecipe.id }}">Voir</a></span>
-                                            </div>
-                                            <div class="list-group">
-                                                @for (recipeFood of subRecipe.childRecipe.recipeFoods; track recipeFood.id) {
-                                                    <div class="list-group-item">
-                                                        <div class="d-flex justify-content-between align-items-center">
-                                                            <div>
-                                                                <strong>{{ recipeFood.quantity }} {{ recipeFood.measure.label }}</strong>
-                                                                <span class="ms-2 text-muted">de {{ recipeFood.food.name }}</span>
-                                                            </div>
-                                                            <span class="badge bg-info">{{ (recipeFood.quantity * recipeFood.measure.grams).toFixed(0) }}g</span>
-                                                        </div>
-                                                    </div>
-                                                }
-                                            </div>
-                                        </div>
-                                    </div>
-                                }
-                            </div>
-                        </div>
-                    }
+                        } @else {
+                            <p class="text-muted">Aucun ingrédient.</p>
+                        }
+                        @if (recipe.recipeSubRecipes && recipe.recipeSubRecipes.length > 0) {
+                            @for (subRecipe of recipe.recipeSubRecipes; track subRecipe.id) {
+                                <div class="my-1"><a routerLink="/recipes/{{ subRecipe.childRecipe.id }}">{{ subRecipe.childRecipe.name }}</a> :</div>
+                                <ul class="mb-0">
+                                    @for (recipeFood of subRecipe.childRecipe.recipeFoods; track recipeFood.id) {
+                                        @let measure = recipeFood.measure.label;
+                                        @let qty = recipeFood.quantity * subRecipe.quantity;
+                                        @let classicMeasure = ['g', 'ml'].includes(measure);
+                                        @let unityMeasure = measure === 'unité';
+
+                                        <li>
+                                            @if (qty >= 1000 && classicMeasure) {
+                                                <strong>{{ (qty / 1000).toFixed(2) }} {{ measure === 'g' ? 'Kg' : 'L' }}</strong>
+                                            } @else {
+                                                <strong>{{ qty }} {{ unityMeasure ? '' : measure }} </strong>
+                                            }
+
+                                            <span>{{ unityMeasure ? '' : 'de' }} {{ recipeFood.food.name.toLowerCase() }}</span>
+                                            @if (!classicMeasure) {
+                                                <span> ({{ (qty * recipeFood.measure.grams).toFixed(0) }} g)</span>
+                                            }
+                                        </li>
+                                    }
+                                </ul>
+                            }
+                        }
+                    </div>
                 </div>
 
                 <div class="div7">
-                    <h5><app-icon name="detail_recipe_instructions.png" alt="Nombre de parts de la recette" class="d-inline me-1"></app-icon>Instructions</h5>
+                    <h5><app-icon name="detail_recipe_instructions.png" alt="Instructions de la recette" class="d-inline me-1"></app-icon>Instructions</h5>
                     <div class="creamy-card font-roboto pre-line">{{ recipe.instructions }}</div>
                 </div>
 
                 <div class="div8">
-                    <h5><app-icon name="detail_recipe_nutrients.png" alt="Nombre de parts de la recette" class="d-inline me-1"></app-icon>Valeurs nutritionnelles (par portion)</h5>
+                    <h5><app-icon name="detail_recipe_nutrients.png" alt="Valeurs nutritionnelles" class="d-inline me-1"></app-icon>Valeurs nutritionnelles (par portion)</h5>
                     @if (totalNutrients(); as nutrients) {
                         <table class="w-100">
                             <tbody>
