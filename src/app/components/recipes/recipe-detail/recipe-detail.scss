@@ -47,3 +47,16 @@
     white-space: pre-wrap;
     word-wrap: break-word;
 }
+
+a {
+    color: var(--brown);
+    text-decoration: none;
+    &:hover {
+        color: var(--brown)!important;
+        font-weight: 800!important;
+    }
+
+    &:focus {
+        color: var(--brown)!important;
+    }
+}
