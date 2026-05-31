@@ -12,7 +12,7 @@ import { Icon } from "../utils/icon/icon";
 import { RecipeFilterDto } from './../../models/recipe';
 
 interface RecipeFilterDtoFormgroup {
-    name: FormControl<string | undefined>,
+    text: FormControl<string | undefined>,
     category: FormControl<RecipeCategory | undefined>,
     seasons: FormControl<RecipeSeason[] | undefined>,
     vegetarianStatus: FormControl<RecipeVegetarianStatus[] | undefined>,
@@ -48,7 +48,7 @@ export class SearchFilters implements OnDestroy {
 
     constructor() {
         this.filterForm = this.fb.group({
-            name: new FormControl<string | undefined>(undefined, { nonNullable: true }),
+            text: new FormControl<string | undefined>(undefined, { nonNullable: true }),
             category: new FormControl<RecipeCategory | undefined>(undefined, { nonNullable: true } ),
             seasons: new FormControl<RecipeSeason[] | undefined>(undefined, { nonNullable: true }),
             vegetarianStatus: new FormControl<RecipeVegetarianStatus[] | undefined>(undefined, { nonNullable: true }),
@@ -61,7 +61,7 @@ export class SearchFilters implements OnDestroy {
 
         this.filterSvc$ = this.filterService.filter$.subscribe(filter => {
             this.filterForm.patchValue({
-                name: filter.name || undefined,
+                text: filter.text || undefined,
                 category: filter.category || undefined,
                 seasons: filter.seasons || undefined,
                 vegetarianStatus: filter.vegetarianStatus || undefined
@@ -84,9 +84,9 @@ export class SearchFilters implements OnDestroy {
         const filter: RecipeFilterDto = {};
         const formValue = this.filterForm.getRawValue() as RecipeFilterDto;
 
-        const cleanedName = formValue.name?.trim().slice(0, 40);
-        if (cleanedName) {
-            filter.name = cleanedName;
+        const cleanedText = formValue.text?.trim().slice(0, 40);
+        if (cleanedText) {
+            filter.text = cleanedText;
         }
 
         if (formValue.category) {

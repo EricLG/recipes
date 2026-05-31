@@ -61,7 +61,7 @@ export interface RecipeWithRelationsDto extends RecipeDto {
 
 export interface RecipeFilterDto {
 
-    name?: string
+    text?: string
     category?: RecipeCategory
     seasons?: RecipeSeason[]
     vegetarianStatus?: RecipeVegetarianStatus[]
