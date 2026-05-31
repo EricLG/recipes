@@ -7,17 +7,36 @@ import { of } from 'rxjs';
 import { filter, map, switchMap } from 'rxjs/operators';
 
 import { AuthService } from '../../../auth/auth.service';
+import { FoodCategory, categoryTranslations } from '../../../enums/food.enum';
+import { RecipeCategory, RecipeSeason, seasonTranslations, recipeCategoryTranslations, recipeVegetarianStatusTranslations, RecipeVegetarianStatus } from '../../../enums/recipes.enum';
+import { NutrientsDto } from '../../../models/food';
+import { DetailedRecipeDTO } from '../../../models/recipe';
 import { Icon } from '../../utils/icon/icon';
-import { RecipeCategory, RecipeSeason, seasonTranslations, recipeCategoryTranslations, recipeVegetarianStatusTranslations, RecipeVegetarianStatus } from './../../../enums/recipes.enum';
-import { NutrientsDto } from './../../../models/food';
-import { DetailedRecipeDTO } from './../../../models/recipe';
-import { RecipeService } from './../recipe.service';
+import { RecipeService } from '../recipe.service';
 
 
 const BAD = 'bi-x-lg c-red'
 const WARNING = 'bi-exclamation-lg c-orange'
 const GOOD = 'bi-check-lg c-green'
 const EXCELLENT = 'bi-heart-fill c-green'
+
+// Order of food categories for displaying recipe foods
+const FOOD_CATEGORY_ORDER: FoodCategory[] = [
+    FoodCategory.STARCHES,
+    FoodCategory.ANIMAL_PROTEINS,
+    FoodCategory.SEAFOOD,
+    FoodCategory.PLANT_BASED,
+    FoodCategory.LEGUMES,
+    FoodCategory.VEGETABLES,
+    FoodCategory.FRUITS,
+    FoodCategory.FATS,
+    FoodCategory.DAIRY,
+    FoodCategory.SWEET_PRODUCTS,
+    FoodCategory.BEVERAGES,
+    FoodCategory.CONDIMENTS,
+    FoodCategory.SUPPLEMENTS,
+    FoodCategory.OTHER,
+];
 
 @Component({
     selector: 'recipe-detail',
@@ -40,6 +59,7 @@ export class RecipeDetail implements OnDestroy {
 
     public isAdmin = this.svcAuth.isAdmin();
     public wakeLock = false;
+    public convUnity: {[measure: string]: string} = { g: 'Kg', ml: 'L' };
 
     private wakeLockSentinel: WakeLockSentinel | null = null;
 
@@ -203,6 +223,63 @@ export class RecipeDetail implements OnDestroy {
 
         return totals;
     });
+
+    // Group recipe foods by category and sort by the defined order
+    public readonly groupedRecipeFoods = computed(() => {
+        const recipe = this.recipe();
+        if (!recipe || !recipe.recipeFoods || recipe.recipeFoods.length === 0) {
+            return [];
+        }
+
+        // Group foods by category
+        const grouped = new Map<FoodCategory, typeof recipe.recipeFoods>();
+
+        recipe.recipeFoods.forEach(recipeFood => {
+            const category = recipeFood.food.category;
+            if (!grouped.has(category)) {
+                grouped.set(category, []);
+            }
+            grouped.get(category)!.push(recipeFood);
+        });
+
+        // Sort categories according to FOOD_CATEGORY_ORDER
+        const sortedCategories = FOOD_CATEGORY_ORDER.filter(cat => grouped.has(cat));
+
+        // Return array of {category, label, foods}
+        return sortedCategories.map(category => ({
+            category,
+            label: categoryTranslations[category] || category,
+            foods: grouped.get(category) || []
+        }));
+    });
+
+    // Group foods for any recipe by category and sort by the defined order
+    public getGroupedFoodsForRecipe(recipeToGroup: DetailedRecipeDTO) {
+        if (!recipeToGroup || !recipeToGroup.recipeFoods || recipeToGroup.recipeFoods.length === 0) {
+            return [];
+        }
+
+        // Group foods by category
+        const grouped = new Map<FoodCategory, typeof recipeToGroup.recipeFoods>();
+
+        recipeToGroup.recipeFoods.forEach(recipeFood => {
+            const category = recipeFood.food.category;
+            if (!grouped.has(category)) {
+                grouped.set(category, []);
+            }
+            grouped.get(category)!.push(recipeFood);
+        });
+
+        // Sort categories according to FOOD_CATEGORY_ORDER
+        const sortedCategories = FOOD_CATEGORY_ORDER.filter(cat => grouped.has(cat));
+
+        // Return array of {category, label, foods}
+        return sortedCategories.map(category => ({
+            category,
+            label: categoryTranslations[category] || category,
+            foods: grouped.get(category) || []
+        }));
+    }
 
     public edit(): void {
         const recipe = this.recipe();

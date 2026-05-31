@@ -1,4 +1,4 @@
-import { RecipeCategory, RecipeSeason, RecipeVegetarianStatus } from './../enums/recipes.enum';
+import { RecipeCategory, RecipeSeason, RecipeVegetarianStatus, RecipePreparationTime } from './../enums/recipes.enum';
 import { FoodDto } from './food';
 
 export interface RecipeDto {
@@ -9,7 +9,7 @@ export interface RecipeDto {
     season: RecipeSeason[];
     category: RecipeCategory;
     servings: number;
-    preparationTime?: string
+    preparationTime?: number;
     kitchenTools?: string
     remark?: string
     imageUrl: string
@@ -61,9 +61,10 @@ export interface RecipeWithRelationsDto extends RecipeDto {
 
 export interface RecipeFilterDto {
 
-    name?: string
+    text?: string
     category?: RecipeCategory
     seasons?: RecipeSeason[]
     vegetarianStatus?: RecipeVegetarianStatus[]
+    preparationTime?: RecipePreparationTime
 
 }

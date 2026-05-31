@@ -27,8 +27,9 @@
             </div>
 
             <div class="mb-3">
-                <label for="preparationTime" class="form-label">Temps de préparation</label>
-                <input id="preparationTime" type="text" class="form-control" formControlName="preparationTime">
+                <label for="preparationTime" class="form-label">Temps de préparation (minutes)</label>
+                <input id="preparationTime" type="number" class="form-control" formControlName="preparationTime" min="0" aria-describedby="preparationTime-help">
+                <small id="preparationTime-help" class="form-text text-muted">Exprimé en minutes</small>
             </div>
 
             <div class="mb-3">

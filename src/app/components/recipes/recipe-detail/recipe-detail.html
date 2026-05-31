@@ -63,7 +63,7 @@
             @if (recipe.remark) {
                 <div class="div5 mb-4">
                     <h5><app-icon name="detail_recipe_remark.png" alt="Remarque" class="d-inline me-1"></app-icon>Remarque</h5>
-                    <div class="creamy-card">{{ recipe.remark }}</div>
+                    <div class="creamy-card pre-line">{{ recipe.remark }}</div>
                 </div>
             }
 
@@ -71,55 +71,27 @@
                 <div class="div6">
                     <h5><app-icon name="detail_recipe_foods.png" alt="Liste des ingrédients" class="d-inline me-1"></app-icon>Ingrédients</h5>
                     <div class="creamy-card">
-                        @if (recipe.recipeFoods && recipe.recipeFoods.length > 0) {
-                            <ul class="mb-0">
-                                @for (recipeFood of recipe.recipeFoods; track recipeFood.id) {
-                                    @let measure = recipeFood.measure.label;
-                                    @let qty = recipeFood.quantity;
-                                    @let classicMeasure = ['g', 'ml'].includes(measure);
-                                    @let unityMeasure = measure === 'unité';
-
-                                    <li>
-                                        @if (qty >= 1000 && classicMeasure) {
-                                            <strong>{{ (qty / 1000).toFixed(2) }} {{ measure === 'g' ? 'Kg' : 'L' }}</strong>
-                                        } @else {
-                                            <strong>{{ qty }} {{ unityMeasure ? '' : measure }} </strong>
-                                        }
-
-                                        <span>{{ unityMeasure ? '' : 'de' }} {{ recipeFood.food.name.toLowerCase() }}</span>
-                                        @if (!classicMeasure) {
-                                            <span> ({{ (qty * recipeFood.measure.grams).toFixed(0) }} g)</span>
-                                        }
-                                    </li>
-                                }
-                            </ul>
+                        @if (groupedRecipeFoods().length > 0) {
+                            @for (categoryGroup of groupedRecipeFoods(); track categoryGroup.category) {
+                                <ul class="mb-0">
+                                    @for (recipeFood of categoryGroup.foods; track recipeFood.id) {
+                                        <ng-container *ngTemplateOutlet="recipeFoodLine; context: { recipeFood: recipeFood, qty: recipeFood.quantity }"></ng-container>
+                                    }
+                                </ul>
+                            }
                         } @else {
                             <p class="text-muted">Aucun ingrédient.</p>
                         }
                         @if (recipe.recipeSubRecipes && recipe.recipeSubRecipes.length > 0) {
                             @for (subRecipe of recipe.recipeSubRecipes; track subRecipe.id) {
                                 <div class="my-1"><a routerLink="/recipes/{{ subRecipe.childRecipe.id }}">{{ subRecipe.childRecipe.name }}</a> :</div>
-                                <ul class="mb-0">
-                                    @for (recipeFood of subRecipe.childRecipe.recipeFoods; track recipeFood.id) {
-                                        @let measure = recipeFood.measure.label;
-                                        @let qty = recipeFood.quantity * subRecipe.quantity;
-                                        @let classicMeasure = ['g', 'ml'].includes(measure);
-                                        @let unityMeasure = measure === 'unité';
-
-                                        <li>
-                                            @if (qty >= 1000 && classicMeasure) {
-                                                <strong>{{ (qty / 1000).toFixed(2) }} {{ measure === 'g' ? 'Kg' : 'L' }}</strong>
-                                            } @else {
-                                                <strong>{{ qty }} {{ unityMeasure ? '' : measure }} </strong>
+                                @for (categoryGroup of getGroupedFoodsForRecipe(subRecipe.childRecipe); track categoryGroup.category) {
+                                        <ul class="mb-0">
+                                            @for (recipeFood of categoryGroup.foods; track recipeFood.id) {
+                                                <ng-container *ngTemplateOutlet="recipeFoodLine; context: { recipeFood: recipeFood, qty: recipeFood.quantity * subRecipe.quantity }"></ng-container>
                                             }
-
-                                            <span>{{ unityMeasure ? '' : 'de' }} {{ recipeFood.food.name.toLowerCase() }}</span>
-                                            @if (!classicMeasure) {
-                                                <span> ({{ (qty * recipeFood.measure.grams).toFixed(0) }} g)</span>
-                                            }
-                                        </li>
-                                    }
-                                </ul>
+                                        </ul>
+                                }
                             }
                         }
                     </div>
@@ -210,3 +182,22 @@
         <div class="alert alert-warning">Recette introuvable.</div>
     </div>
 }
+
+<ng-template #recipeFoodLine let-recipeFood="recipeFood" let-qty="qty">
+    @let measure = recipeFood.measure.label;
+    @let classicMeasure = ['g', 'ml'].includes(measure);
+    @let unityMeasure = measure === 'unité';
+
+    <li>
+        @if (qty >= 1000 && classicMeasure) {
+            <strong>{{ (qty / 1000).toFixed(2) }} {{ convUnity[measure] }}</strong>
+        } @else {
+            <strong>{{ qty }} {{ unityMeasure ? '' : measure }}</strong>
+        }
+
+        <span>{{ unityMeasure ? '' : ' de' }} {{ recipeFood.food.name.toLowerCase() }}</span>
+        @if (!classicMeasure) {
+            <span> ({{ (qty * recipeFood.measure.grams) }} g)</span>
+        }
+    </li>
+</ng-template>
