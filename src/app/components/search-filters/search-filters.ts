@@ -6,7 +6,7 @@ import { NgMultiLabelTemplateDirective, NgOptionTemplateDirective, NgSelectCompo
 import { debounceTime, Subscription } from "rxjs";
 
 import { Option, toOptions } from "../../enums/enum-utils";
-import { RecipeCategory, RecipeSeason, RecipeVegetarianStatus, recipeCategoryTranslations, seasonTranslations, recipeVegetarianStatusTranslations } from "../../enums/recipes.enum";
+import { RecipeCategory, RecipeSeason, RecipeVegetarianStatus, RecipePreparationTime, recipeCategoryTranslations, seasonTranslations, recipeVegetarianStatusTranslations, recipePreparationTimeTranslations } from "../../enums/recipes.enum";
 import { RecipeFilterService } from "../recipes/recipe-filter.service";
 import { Icon } from "../utils/icon/icon";
 import { RecipeFilterDto } from './../../models/recipe';
@@ -16,6 +16,7 @@ interface RecipeFilterDtoFormgroup {
     category: FormControl<RecipeCategory | undefined>,
     seasons: FormControl<RecipeSeason[] | undefined>,
     vegetarianStatus: FormControl<RecipeVegetarianStatus[] | undefined>,
+    preparationTime: FormControl<RecipePreparationTime | undefined>,
 }
 
 @Component({
@@ -37,6 +38,7 @@ export class SearchFilters implements OnDestroy {
     protected categories: Option<RecipeCategory>[] = toOptions(recipeCategoryTranslations);
     protected seasons: Option<RecipeSeason>[] = toOptions(seasonTranslations);
     protected vegetarianStatusOptions: Option<RecipeVegetarianStatus>[] = toOptions(recipeVegetarianStatusTranslations);
+    protected preparationTimeOptions: Option<RecipePreparationTime>[] = toOptions(recipePreparationTimeTranslations);
 
     protected filterForm: FormGroup<RecipeFilterDtoFormgroup>;
 
@@ -52,6 +54,7 @@ export class SearchFilters implements OnDestroy {
             category: new FormControl<RecipeCategory | undefined>(undefined, { nonNullable: true } ),
             seasons: new FormControl<RecipeSeason[] | undefined>(undefined, { nonNullable: true }),
             vegetarianStatus: new FormControl<RecipeVegetarianStatus[] | undefined>(undefined, { nonNullable: true }),
+            preparationTime: new FormControl<RecipePreparationTime | undefined>(undefined, { nonNullable: true }),
         }, { });
         this.filterFormValueChanges$ = this.filterForm.valueChanges.pipe(
             debounceTime(500)
@@ -64,7 +67,8 @@ export class SearchFilters implements OnDestroy {
                 text: filter.text || undefined,
                 category: filter.category || undefined,
                 seasons: filter.seasons || undefined,
-                vegetarianStatus: filter.vegetarianStatus || undefined
+                vegetarianStatus: filter.vegetarianStatus || undefined,
+                preparationTime: filter.preparationTime || undefined
             }, { emitEvent: false });
         });
     }
@@ -99,6 +103,10 @@ export class SearchFilters implements OnDestroy {
 
         if (formValue.vegetarianStatus && formValue.vegetarianStatus.length > 0) {
             filter.vegetarianStatus = formValue.vegetarianStatus as RecipeVegetarianStatus[];
+        }
+
+        if (formValue.preparationTime) {
+            filter.preparationTime = formValue.preparationTime as RecipePreparationTime;
         }
 
         return filter;

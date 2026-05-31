@@ -20,6 +20,7 @@
                     <div class="ng-multi-label-tmp">Type ({{ items.length }})</div></ng-template>
                 <ng-template ng-option-tmp let-item="item" let-item$="item$" let-index="index"><input type="checkbox" id="opt-type-{{ index }}" class="me-1" [checked]="item$.selected">{{ item.label }}</ng-template>
             </ng-select>
+            <ng-select class="customNgSelect select-form" [items]="preparationTimeOptions" bindValue="id" placeholder="Temps total" [searchable]="false" [clearable]="true" formControlName="preparationTime"> </ng-select>
         </div>
     </form>
 </div>

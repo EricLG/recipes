@@ -17,14 +17,14 @@
 /* desktop */
 @media (min-width: 992px) {
     .filters-grid {
-        grid-template-columns: repeat(3, 1fr);
+        grid-template-columns: repeat(4, 1fr);
     }
 }
 
 /* largeur complète des selects */
 
 .filters-grid ng-select {
-    min-width: 250px;
+    min-width: 200px;
 }
 
 .input-group-text, .form-control {

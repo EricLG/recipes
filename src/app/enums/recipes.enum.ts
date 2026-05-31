@@ -21,6 +21,13 @@ export enum RecipeVegetarianStatus {
     FLEXIBLE = 'flexible',
 }
 
+export enum RecipePreparationTime {
+    QUICK = 'quick',
+    MODERATE = 'moderate',
+    LONG = 'long',
+    UNKNONW = 'unknown',
+}
+
 export const seasonTranslations: Record<RecipeSeason, string> = {
     spring: "Printemps",
     summer: "Été",
@@ -42,4 +49,11 @@ export const recipeVegetarianStatusTranslations: Record<RecipeVegetarianStatus, 
     vegetarian: "Végétarien",
     non_vegetarian: "Avec viande",
     flexible: "Flexible",
+};
+
+export const recipePreparationTimeTranslations: Record<RecipePreparationTime, string> = {
+    quick: "Rapide (<= 30 min)",
+    moderate: "Modéré (30-60 min)",
+    long: "Long (> 60 min)",
+    unknown: "Non renseigné",
 };

@@ -13,7 +13,7 @@ import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { of } from 'rxjs';
 import { filter, map, switchMap } from 'rxjs/operators';
 
-import { RecipeCategory, RecipeSeason, seasonTranslations, recipeCategoryTranslations, RecipeVegetarianStatus, recipeVegetarianStatusTranslations } from '../../../enums/recipes.enum';
+import { RecipeCategory, RecipeSeason, seasonTranslations, recipeCategoryTranslations, RecipeVegetarianStatus, recipeVegetarianStatusTranslations, RecipePreparationTime, recipePreparationTimeTranslations } from '../../../enums/recipes.enum';
 import { MeasureDto } from '../../../models/food';
 import { RecipeDto } from '../../../models/recipe';
 import { FoodService } from '../../foods/food.service';
@@ -75,6 +75,13 @@ export class RecipeForm {
     public readonly seasons = Object.values(RecipeSeason);
     public readonly categories = Object.values(RecipeCategory)
     public readonly vegetarianStatuses = Object.values(RecipeVegetarianStatus);
+    public readonly preparationTimes = Object.values(RecipePreparationTime);
+
+    // Enum translations
+    protected readonly seasonTranslations = seasonTranslations;
+    protected readonly categoryTranslations = recipeCategoryTranslations;
+    protected readonly vegetarianStatusTranslations = recipeVegetarianStatusTranslations;
+    protected readonly preparationTimeTranslations = recipePreparationTimeTranslations;
 
     // Track forms visibility
     public readonly showNewRecipeFoodForm = signal(false);
@@ -87,7 +94,7 @@ export class RecipeForm {
         season: [[] as RecipeSeason[]],
         category: [RecipeCategory.MAIN],
         servings: [1, [Validators.required, Validators.min(1)]],
-        preparationTime: [''],
+        preparationTime: [null as number | null],
         kitchenTools: [''],
         remark: [''],
         recipeFoods: this.fb.array([]),
@@ -168,6 +175,10 @@ export class RecipeForm {
 
     public getVegetarianStatusLabel(status: string): string {
         return recipeVegetarianStatusTranslations[status as RecipeVegetarianStatus] || status;
+    }
+
+    public getPreparationTimeLabel(preparationTime: string): string {
+        return recipePreparationTimeTranslations[preparationTime as RecipePreparationTime] || preparationTime;
     }
 
     private createRecipeFoodFormGroup(): FormGroup {
