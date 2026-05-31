@@ -59,6 +59,7 @@ export class RecipeDetail implements OnDestroy {
 
     public isAdmin = this.svcAuth.isAdmin();
     public wakeLock = false;
+    public convUnity: {[measure: string]: string} = { g: 'Kg', ml: 'L' };
 
     private wakeLockSentinel: WakeLockSentinel | null = null;
 
