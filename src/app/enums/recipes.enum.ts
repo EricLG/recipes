@@ -28,6 +28,11 @@ export enum RecipePreparationTime {
     UNKNONW = 'unknown',
 }
 
+export enum RecipeStatus {
+    DRAFT = 'draft',
+    APPROVED = 'approved',
+}
+
 export const seasonTranslations: Record<RecipeSeason, string> = {
     spring: "Printemps",
     summer: "Été",
@@ -56,4 +61,9 @@ export const recipePreparationTimeTranslations: Record<RecipePreparationTime, st
     moderate: "Modéré (30-60 min)",
     long: "Long (> 60 min)",
     unknown: "Non renseigné",
+};
+
+export const recipeStatusTranslations: Record<RecipeStatus, string> = {
+    draft: "Brouillon",
+    approved: "Validé",
 };

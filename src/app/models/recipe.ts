@@ -1,9 +1,10 @@
-import { RecipeCategory, RecipeSeason, RecipeVegetarianStatus, RecipePreparationTime } from './../enums/recipes.enum';
+import { RecipeCategory, RecipeSeason, RecipeVegetarianStatus, RecipePreparationTime, RecipeStatus } from './../enums/recipes.enum';
 import { FoodDto } from './food';
 
 export interface RecipeDto {
     id: string;
     name: string;
+    status: RecipeStatus;
     instructions: string;
     vegetarianStatus: RecipeVegetarianStatus;
     season: RecipeSeason[];

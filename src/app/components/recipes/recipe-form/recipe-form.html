@@ -17,6 +17,20 @@
             </div>
 
             <div class="mb-3">
+                <label for="status" class="form-label">Statut <span class="text-danger">*</span></label>
+                <select id="status" class="form-select" formControlName="status" required aria-describedby="status-error">
+                    @for (status of statuses; track status) {
+                        <option [value]="status">{{ getStatusLabel(status) }}</option>
+                    }
+                </select>
+                @if (recipeForm.get('status')?.invalid && recipeForm.get('status')?.touched) {
+                    <div id="status-error" class="invalid-feedback d-block">
+                        Le statut est requis.
+                    </div>
+                }
+            </div>
+
+            <div class="mb-3">
                 <label for="instructions" class="form-label">Instructions</label>
                 <textarea id="instructions" class="form-control" formControlName="instructions" rows="4"></textarea>
             </div>

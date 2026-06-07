@@ -197,7 +197,8 @@
 
         <span>{{ unityMeasure ? '' : ' de' }} {{ recipeFood.food.name.toLowerCase() }}</span>
         @if (!classicMeasure) {
-            <span> ({{ (qty * recipeFood.measure.grams) }} g)</span>
+            @let gramsTotal = qty * recipeFood.measure.grams;
+            <span> ({{ gramsTotal % 1 === 0 ? gramsTotal : gramsTotal.toFixed(1) }} g)</span>
         }
     </li>
 </ng-template>

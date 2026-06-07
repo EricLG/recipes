@@ -1,0 +1,38 @@
+<div class="card tile">
+    <a [routerLink]="['/recipes', recipe.id]" class="recipe-card-link">
+        <div class="card-body">
+            <div class="card-title text-center font-lydian c-green d-flex align-items-center justify-content-center lh-1 mb-1">{{ recipe.name | titlecase }}</div>
+            <div class="d-flex justify-content-center">
+                @if (recipe.imageUrl) {
+                    <img [src]="recipe.imageUrl" [alt]="'Photo de ' + recipe.name" width="120" height="90">
+                } @else {
+                    <img [src]="defaultImages[recipe.vegetarianStatus].url" [alt]="defaultImages[recipe.vegetarianStatus].alt" width="110" height="90"/>
+                }
+            </div>
+
+            <div class="d-flex justify-content-between">
+                <div class="info-left d-flex gap-1">
+                    <div class="d-flex flex-column justify-content-between">
+                        <div class="category">{{ getCategoryLabel(recipe.category) }}</div>
+                        <div class="servings">
+                            {{ recipe.servings | i18nPlural: servingMapping }}
+                            @if (recipe.preparationTime) {
+                                - {{ recipe.preparationTime}}
+                            }
+                        </div>
+                    </div>
+                    @if (recipe.vegetarianStatus === 'vegetarian') {
+                        <div>
+                            <img width="25" height="16" src="assets/pictos/vege.png" alt="natural-food">
+                        </div>
+                    }
+                </div>
+                <div class="seasons-grid" [ngClass]="'count-' + recipe.season.length">
+                    @for (season of recipe.season; track season) {
+                        <img src="assets/pictos/{{ season.toLowerCase() }}.png" [alt]="season" [title]="getSeasonLabel(season)" [width]="27" [height]="22"/>
+                    }
+                </div>
+            </div>
+        </div>
+    </a>
+</div>
