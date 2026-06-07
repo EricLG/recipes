@@ -13,7 +13,7 @@ import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { of } from 'rxjs';
 import { filter, map, switchMap } from 'rxjs/operators';
 
-import { RecipeCategory, RecipeSeason, seasonTranslations, recipeCategoryTranslations, RecipeVegetarianStatus, recipeVegetarianStatusTranslations, RecipePreparationTime, recipePreparationTimeTranslations } from '../../../enums/recipes.enum';
+import { RecipeCategory, RecipeSeason, seasonTranslations, recipeCategoryTranslations, RecipeVegetarianStatus, recipeVegetarianStatusTranslations, RecipePreparationTime, recipePreparationTimeTranslations, RecipeStatus, recipeStatusTranslations } from '../../../enums/recipes.enum';
 import { MeasureDto } from '../../../models/food';
 import { RecipeDto } from '../../../models/recipe';
 import { FoodService } from '../../foods/food.service';
@@ -75,12 +75,14 @@ export class RecipeForm {
     public readonly seasons = Object.values(RecipeSeason);
     public readonly categories = Object.values(RecipeCategory)
     public readonly vegetarianStatuses = Object.values(RecipeVegetarianStatus);
+    public readonly statuses = Object.values(RecipeStatus);
     public readonly preparationTimes = Object.values(RecipePreparationTime);
 
     // Enum translations
     protected readonly seasonTranslations = seasonTranslations;
     protected readonly categoryTranslations = recipeCategoryTranslations;
     protected readonly vegetarianStatusTranslations = recipeVegetarianStatusTranslations;
+    protected readonly statusTranslations = recipeStatusTranslations;
     protected readonly preparationTimeTranslations = recipePreparationTimeTranslations;
 
     // Track forms visibility
@@ -89,6 +91,7 @@ export class RecipeForm {
 
     public readonly recipeForm = this.fb.group({
         name: ['', Validators.required],
+        status: RecipeStatus.DRAFT,
         instructions: [''],
         vegetarianStatus: RecipeVegetarianStatus.NON_VEGETARIAN,
         season: [[] as RecipeSeason[]],
@@ -177,6 +180,10 @@ export class RecipeForm {
         return recipeVegetarianStatusTranslations[status as RecipeVegetarianStatus] || status;
     }
 
+    public getStatusLabel(status: string): string {
+        return recipeStatusTranslations[status as RecipeStatus] || status;
+    }
+
     public getPreparationTimeLabel(preparationTime: string): string {
         return recipePreparationTimeTranslations[preparationTime as RecipePreparationTime] || preparationTime;
     }
@@ -226,6 +233,7 @@ export class RecipeForm {
         const data = this.recipeForm.value;
         const recipeData = {
             name: data.name,
+            status: data.status,
             instructions: data.instructions,
             vegetarianStatus: data.vegetarianStatus,
             season: (data.season && data.season?.length > 0) ? data.season : [RecipeSeason.SPRING, RecipeSeason.SUMMER, RecipeSeason.AUTUMN, RecipeSeason.WINTER], // Default to all seasons if none selected

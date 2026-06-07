@@ -1,12 +1,13 @@
 import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
-import { RouterModule } from '@angular/router';
 import { Observable } from 'rxjs';
-import { switchMap } from 'rxjs/operators';
+import { map, switchMap } from 'rxjs/operators';
 
 import { Icon } from '../../utils/icon/icon';
+import { RecipeCard } from '../recipe-card/recipe-card';
 import { RecipeFilterService } from '../recipe-filter.service';
-import { RecipeSeason, RecipeCategory, seasonTranslations, recipeCategoryTranslations } from './../../../enums/recipes.enum';
+import { AuthService } from './../../../auth/auth.service';
+import { RecipeStatus } from './../../../enums/recipes.enum';
 import { RecipeDto } from './../../../models/recipe';
 import { RecipeService } from './../recipe.service';
 
@@ -14,8 +15,8 @@ import { RecipeService } from './../recipe.service';
     selector: 'recipe-list',
     imports: [
         CommonModule,
-        RouterModule,
         Icon,
+        RecipeCard,
     ],
     templateUrl: './recipe-list.html',
     styleUrls: ['./recipe-list.scss'],
@@ -23,33 +24,27 @@ import { RecipeService } from './../recipe.service';
 })
 export class RecipeList {
 
-    public recipes$!: Observable<RecipeDto[]>;
-    public defaultImages = {
-        vegetarian: { url: 'assets/recipe_vege.png', alt: 'Plat végétarien'},
-        non_vegetarian: { url: 'assets/recipe_meat.png', alt: 'Plat non végétarien'},
-        flexible: { url: 'assets/recipe_flexible.png', alt: 'Plat flexible'},
-    }
+    private readonly authService = inject(AuthService);
     private readonly recipeService = inject(RecipeService);
     private readonly filterService = inject(RecipeFilterService);
 
+    public isAdmin = this.authService.isAdmin();
+    public approvedRecipes$!: Observable<RecipeDto[]>;
+    public draftRecipes$!: Observable<RecipeDto[]>;
+
     constructor() {
-        this.recipes$ = this.filterService.filter$.pipe(
+        const recipes$ = this.filterService.filter$.pipe(
             switchMap((filter) => this.recipeService.search(filter))
+        );
+
+        this.approvedRecipes$ = recipes$.pipe(
+            map((recipes) => recipes.filter(recipe => recipe.status === RecipeStatus.APPROVED))
+        );
+
+        this.draftRecipes$ = recipes$.pipe(
+            map((recipes) => recipes.filter(recipe => recipe.status === RecipeStatus.DRAFT))
         );
     }
 
-    public getSeasonLabel(season: string): string {
-        return seasonTranslations[season as RecipeSeason] || season;
-    }
-
-    public getCategoryLabel(category: string): string {
-        return recipeCategoryTranslations[category as RecipeCategory] || category;
-    }
-
-    public servingMapping: {[k: string]: string} = {
-        '=0': 'Aucune part',
-        '=1': '1 part',
-        'other': '# parts'
-    }
 
 }
