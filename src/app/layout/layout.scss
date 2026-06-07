@@ -98,6 +98,27 @@
     top: 15px;
 }
 
+
+/* =========================================================
+   FOOTER
+========================================================= */
+
+.footer {
+    grid-column: 1 / -1;
+    height: 80px;
+    background-color: white;
+    border-top: 1px solid var(--border-line);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+
+    p {
+        font-size: 0.875rem;
+        color: var(--text-secondary, #6c757d);
+    }
+}
+
 .hamburger::before {
     top: -7px;
 }
