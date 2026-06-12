@@ -44,6 +44,10 @@ export class Layout {
         public route: ActivatedRoute
     ) {}
 
+    public goHome(): void {
+        this.router.navigate(['/']);
+    }
+
     public goToAllRecipes(path: string): void {
         if (path === 'recipes') {
             this.filterService.resetFilter();
