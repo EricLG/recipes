@@ -36,6 +36,7 @@ export class Layout {
     public readonly links = [
         { title: 'Recettes', path: 'recipes', icon: 'list_recipes.png' },
         { title: 'Ingrédients', path: 'foods', icon: 'list_food.png' },
+        { title: 'Valeurs nutritionnelles', path: 'nutritionnals-values', icon: 'detail_recipe_nutrients.png' },
         { title: 'Planifier ma semaine', path: 'coming-soon', icon: 'planning_week.png' },
         { title: 'Liste de courses', path: 'coming-soon', icon: 'shopping_list.png' },
     ];
@@ -43,6 +44,10 @@ export class Layout {
     constructor(
         public route: ActivatedRoute
     ) {}
+
+    public goHome(): void {
+        this.router.navigate(['/']);
+    }
 
     public goToAllRecipes(path: string): void {
         if (path === 'recipes') {

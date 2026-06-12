@@ -8,6 +8,7 @@ import { Home } from './components/home/home';
 import { Login } from './components/login/login';
 import { ComingSoon } from './components/misc/coming-soon/coming-soon';
 import { NotFound } from './components/misc/not-found/not-found';
+import { NutrionnalsValues } from './components/nutritionnals-values/nutrionnals-values';
 import { Profile } from './components/profile/profile';
 import { RecipeDetail } from './components/recipes/recipe-detail/recipe-detail';
 import { RecipeForm } from './components/recipes/recipe-form/recipe-form';
@@ -25,6 +26,7 @@ export const routes: Routes = [
     { path: 'foods/edit/:id', component: FoodForm, canActivate: [authGuard] },
     { path: 'foods/:id', component: FoodDetail },
     { path: 'profile', component: Profile, canActivate: [loggedInGuard] },
+    { path: 'nutritionnals-values', component: NutrionnalsValues },
     { path: 'coming-soon', component: ComingSoon },
     { path: '**', component: NotFound },
 ];
