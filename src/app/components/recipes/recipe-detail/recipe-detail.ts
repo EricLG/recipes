@@ -12,13 +12,8 @@ import { RecipeCategory, RecipeSeason, seasonTranslations, recipeCategoryTransla
 import { NutrientsDto } from '../../../models/food';
 import { DetailedRecipeDTO } from '../../../models/recipe';
 import { Icon } from '../../utils/icon/icon';
+import { RecipeTotalNutritionalsValues } from '../recipe-total-nutritionals-values/recipe-total-nutritionals-values';
 import { RecipeService } from '../recipe.service';
-
-
-const BAD = 'bi-x-lg c-red'
-const WARNING = 'bi-exclamation-lg c-orange'
-const GOOD = 'bi-check-lg c-green'
-const EXCELLENT = 'bi-heart-fill c-green'
 
 // Order of food categories for displaying recipe foods
 const FOOD_CATEGORY_ORDER: FoodCategory[] = [
@@ -45,6 +40,7 @@ const FOOD_CATEGORY_ORDER: FoodCategory[] = [
         FormsModule,
         RouterModule,
         Icon,
+        RecipeTotalNutritionalsValues,
     ],
     templateUrl: './recipe-detail.html',
     styleUrls: ['./recipe-detail.scss'],
@@ -284,7 +280,6 @@ export class RecipeDetail implements OnDestroy {
     public edit(): void {
         const recipe = this.recipe();
 
-        console.log('Editing recipe:', recipe);
         if (!recipe) return;
         this.router.navigate(['/recipes/edit', recipe.id]);
     }
@@ -316,61 +311,6 @@ export class RecipeDetail implements OnDestroy {
         '=0': 'Aucune part',
         '=1': '1 part',
         'other': '# parts'
-    }
-
-    // Proteins is checked for all needs of the day, for someone needing 1600 KCal by day
-    public getProteinsStatus(value: number, energyKcal: number): string {
-        const scaledValueFor1600KCal = value * 1600 / energyKcal
-
-        if (scaledValueFor1600KCal < 50) {
-            return BAD
-        } else if (scaledValueFor1600KCal >= 50 && scaledValueFor1600KCal < 72){
-            return WARNING
-        } else if (scaledValueFor1600KCal >= 72 && scaledValueFor1600KCal < 96){
-            return GOOD
-        } else {
-            return EXCELLENT
-        }
-    }
-
-    // Fats is checked for all needs of the day, for someone needing 1600 KCal by day
-    public getFatsStatus(value: number, energyKcal: number): string {
-        const scaledValueFor1600KCal = value * 1600 / energyKcal
-
-        if (scaledValueFor1600KCal < 42) {
-            return GOOD
-        } else if (scaledValueFor1600KCal >= 42 && scaledValueFor1600KCal < 63){
-            return EXCELLENT
-        } else if (scaledValueFor1600KCal >= 63 && scaledValueFor1600KCal < 71){
-            return WARNING
-        } else {
-            return BAD
-        }
-    }
-
-    // Fiber is checked for all needs of the day, for someone needing 1600 KCal by day
-    public getFibersStatus(value: number, energyKcal: number): string {
-        const scaledValueFor1600KCal = value * 1600 / energyKcal
-
-        if (scaledValueFor1600KCal < 20) {
-            return WARNING
-        } else if (scaledValueFor1600KCal >= 20 && scaledValueFor1600KCal < 30){
-            return GOOD
-        } else {
-            return EXCELLENT
-        }
-    }
-
-    // Salt is checked by recipe, not taking account other meal
-    public getSaltStatus(value: number): string {
-
-        if (value < 1.5) {
-            return GOOD
-        } else if (value >= 1.5 && value < 2.5){
-            return EXCELLENT
-        } else {
-            return BAD
-        }
     }
 
 }

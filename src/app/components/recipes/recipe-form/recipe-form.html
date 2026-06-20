@@ -1,3 +1,8 @@
+<div class="custom-off-canvas card d-none d-xl-block m-3">
+    <h5 class="text-center">Valeurs nutritionnelles (par portion)</h5>
+    <recipe-total-nutritionals-values [nutrients]="recipeNutrients()"></recipe-total-nutritionals-values>
+</div>
+
 <div class="container mt-3 mb-5">
     <h2 class="mb-4">{{ title() }}</h2>
 
@@ -10,59 +15,12 @@
                 <label for="name" class="form-label">Nom <span class="text-danger">*</span></label>
                 <input id="name" type="text" class="form-control" formControlName="name" required aria-describedby="name-error">
                 @if (recipeForm.get('name')?.invalid && recipeForm.get('name')?.touched) {
-                    <div id="name-error" class="invalid-feedback d-block">
-                        Le nom est requis.
-                    </div>
+                    <div id="name-error" class="invalid-feedback d-block">Le nom est requis.</div>
                 }
             </div>
 
-            <div class="mb-3">
-                <label for="status" class="form-label">Statut <span class="text-danger">*</span></label>
-                <select id="status" class="form-select" formControlName="status" required aria-describedby="status-error">
-                    @for (status of statuses; track status) {
-                        <option [value]="status">{{ getStatusLabel(status) }}</option>
-                    }
-                </select>
-                @if (recipeForm.get('status')?.invalid && recipeForm.get('status')?.touched) {
-                    <div id="status-error" class="invalid-feedback d-block">
-                        Le statut est requis.
-                    </div>
-                }
-            </div>
-
-            <div class="mb-3">
-                <label for="instructions" class="form-label">Instructions</label>
-                <textarea id="instructions" class="form-control" formControlName="instructions" rows="4"></textarea>
-            </div>
-
-            <div class="mb-3">
-                <label for="remark" class="form-label">Remarque</label>
-                <textarea id="remark" class="form-control" formControlName="remark" rows="4"></textarea>
-            </div>
-
-            <div class="mb-3">
-                <label for="preparationTime" class="form-label">Temps de préparation (minutes)</label>
-                <input id="preparationTime" type="number" class="form-control" formControlName="preparationTime" min="0" aria-describedby="preparationTime-help">
-                <small id="preparationTime-help" class="form-text text-muted">Exprimé en minutes</small>
-            </div>
-
-            <div class="mb-3">
-                <label for="kitchenTools" class="form-label">Ustensiles</label>
-                <input id="kitchenTools" type="text" class="form-control" formControlName="kitchenTools">
-            </div>
-
-            <div class="mb-3">
-                <label for="servings" class="form-label">Nombre de parts <span class="text-danger">*</span></label>
-                <input id="servings" type="number" class="form-control" formControlName="servings" min="1" required aria-describedby="servings-error">
-                @if (recipeForm.get('servings')?.invalid && recipeForm.get('servings')?.touched) {
-                    <div id="servings-error" class="invalid-feedback d-block">
-                        Le nombre de parts doit être au minimum 1.
-                    </div>
-                }
-            </div>
-
-            <div class="row">
-                <div class="col-12 col-md-6 mb-3">
+            <div class="row mb-3">
+                <div class="col-12 col-md-4 col-sm-6">
                     <label for="category" class="form-label">Catégorie <span class="text-danger">*</span></label>
                     <select id="category" class="form-select" formControlName="category" required aria-describedby="category-error">
                         @for (cat of categories; track cat) {
@@ -76,6 +34,67 @@
                     }
                 </div>
 
+                <div class="col-12 col-md-4 col-sm-6">
+                    <label for="vegetarianStatus" class="form-label">Statut végétarien <span class="text-danger">*</span></label>
+                    <select id="vegetarianStatus" class="form-select" formControlName="vegetarianStatus" required aria-describedby="vegetarianStatus-error">
+                        @for (status of vegetarianStatuses; track status) {
+                            <option [value]="status">{{ getVegetarianStatusLabel(status) }}</option>
+                        }
+                    </select>
+                    @if (recipeForm.get('vegetarianStatus')?.invalid && recipeForm.get('vegetarianStatus')?.touched) {
+                        <div id="vegetarianStatus-error" class="invalid-feedback d-block">
+                            Le statut végétarien est requis.
+                        </div>
+                    }
+                </div>
+
+                <div class="col-12 col-md-4 col-sm-6">
+                    <label for="status" class="form-label">Statut <span class="text-danger">*</span></label>
+                    <select id="status" class="form-select" formControlName="status" required aria-describedby="status-error">
+                        @for (status of statuses; track status) {
+                            <option [value]="status">{{ getStatusLabel(status) }}</option>
+                        }
+                    </select>
+                    @if (recipeForm.get('status')?.invalid && recipeForm.get('status')?.touched) {
+                        <div id="status-error" class="invalid-feedback d-block">Le statut est requis.</div>
+                    }
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label for="instructions" class="form-label">Instructions</label>
+                <textarea id="instructions" class="form-control" formControlName="instructions" rows="4"></textarea>
+            </div>
+
+            <div class="mb-3">
+                <label for="remark" class="form-label">Remarque</label>
+                <textarea id="remark" class="form-control" formControlName="remark" rows="4"></textarea>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-12 col-md-4">
+                    <label for="servings" class="form-label">Nombre de parts <span class="text-danger">*</span></label>
+                    <input id="servings" type="number" class="form-control" formControlName="servings" min="1" required aria-describedby="servings-error">
+                    @if (recipeForm.get('servings')?.invalid && recipeForm.get('servings')?.touched) {
+                        <div id="servings-error" class="invalid-feedback d-block">
+                            Le nombre de parts doit être au minimum 1.
+                        </div>
+                    }
+                </div>
+
+                <div class="col-12 col-md-4">
+                    <label for="preparationTime" class="form-label">Temps de préparation</label>
+                    <input id="preparationTime" type="number" class="form-control" formControlName="preparationTime" min="0" aria-describedby="preparationTime-help">
+                    <small id="preparationTime-help" class="form-text text-muted">Exprimé en minutes</small>
+                </div>
+
+                <div class="col-12 col-md-4">
+                    <label for="kitchenTools" class="form-label">Ustensiles</label>
+                    <input id="kitchenTools" type="text" class="form-control" formControlName="kitchenTools">
+                </div>
+            </div>
+
+            <div class="row">
                 <div class="col-12 col-md-6 mb-3">
                     <label class="form-label">Saisons <span class="text-danger">*</span></label>
                     <div class="d-flex gap-3 flex-wrap">
@@ -88,32 +107,14 @@
                                 [checked]="isSeasonChecked(season)"
                                 (change)="toggleSeason(season)"
                                 [aria-label]="'Saison ' + getSeasonLabel(season)">
-                                <label class="form-check-label" [for]="'season-' + season">
-                                    {{ getSeasonLabel(season) }}
-                                </label>
+                                <label class="form-check-label" [for]="'season-' + season"> {{ getSeasonLabel(season) }}</label>
                             </div>
                         }
                     </div>
                     @if (recipeForm.get('season')?.invalid && recipeForm.get('season')?.touched) {
-                        <div class="invalid-feedback d-block">
-                            Sélectionner au moins une saison.
-                        </div>
+                        <div class="invalid-feedback d-block">Sélectionner au moins une saison.</div>
                     }
                 </div>
-            </div>
-
-            <div class="col-12 col-md-6 mb-3">
-                <label for="vegetarianStatus" class="form-label">Statut végétarien <span class="text-danger">*</span></label>
-                <select id="vegetarianStatus" class="form-select" formControlName="vegetarianStatus" required aria-describedby="vegetarianStatus-error">
-                    @for (status of vegetarianStatuses; track status) {
-                        <option [value]="status">{{ getVegetarianStatusLabel(status) }}</option>
-                    }
-                </select>
-                @if (recipeForm.get('vegetarianStatus')?.invalid && recipeForm.get('vegetarianStatus')?.touched) {
-                    <div id="vegetarianStatus-error" class="invalid-feedback d-block">
-                        Le statut végétarien est requis.
-                    </div>
-                }
             </div>
 
             <div class="mb-3">
@@ -125,98 +126,98 @@
                         <img [src]="imagePreview()" alt="Aperçu de la nouvelle recette" class="img-thumbnail"  width="110" height="90">
                         <button type="button" class="btn btn-sm btn-outline-danger ms-2" (click)="removeImage()">Supprimer l'image</button>
                     </div>
-            }
+                }
 
-            <input id="image" type="file" class="form-control" accept="image/jpeg,image/png,image/webp" (change)="onFileChange($event)">
-            <div class="form-text">Formats acceptés : JPG, PNG, WEBP. Taille max : 5 Mo.</div>
-        </div>
-    </fieldset>
+                <input id="image" type="file" class="form-control" accept="image/jpeg,image/png,image/webp" (change)="onFileChange($event)">
+                <div class="form-text">Formats acceptés : JPG, PNG, WEBP. Taille max : 5 Mo.</div>
+            </div>
+        </fieldset>
 
-    <!-- Recipe Foods Section -->
-    <fieldset class="mb-5 pb-4 border-bottom">
-        <legend class="h5 mb-3">Ingrédients</legend>
+        <!-- Recipe Foods Section -->
+        <fieldset class="mb-5 pb-4 border-bottom">
+            <legend class="h5 mb-3">Ingrédients</legend>
 
-        <div formArrayName="recipeFoods">
-            @if (recipeFoodsArray.length > 0) {
-                <div class="list-group mb-3">
-                    @for (food of recipeFoodsArray.controls; let i = $index; track food) {
-                        <div [formGroupName]="i" class="list-group-item p-3">
-                            <div class="row g-2">
-                                <div class="col-12 col-md-5">
-                                    <label [for]="'food-id-' + i" class="form-label">Ingrédient <span class="text-danger">*</span></label>
-                                    <select [id]="'food-id-' + i" class="form-select" formControlName="foodId" required>
-                                        <option value="">Sélectionner un ingrédient</option>
-                                        @for (f of foods(); track f.id) {
-                                            <option [value]="f.id">{{ f.name }}</option>
-                                        }
-                                    </select>
-                                </div>
-                                <div class="col-12 col-md-4">
-                                    <label [for]="'measure-id-' + i" class="form-label">Portion <span class="text-danger">*</span></label>
-                                    <select [id]="'measure-id-' + i" class="form-select" formControlName="measureId" required>
-                                        <option value="">Sélectionner une portion</option>
-                                        @for (m of getMeasuresForFood(food.get('foodId')?.value); track m.id) {
-                                            <option [value]="m.id">{{ m.label }}</option>
-                                        }
-                                    </select>
-                                </div>
-                                <div class="col-12 col-md-2">
-                                    <label [for]="'quantity-' + i" class="form-label">Quantité <span class="text-danger">*</span></label>
-                                    <input [id]="'quantity-' + i" type="number" class="form-control" formControlName="quantity" required min="0.1" step="0.1">
-                                </div>
-                                <div class="col-12">
-                                    <button type="button" class="btn btn-sm btn-outline-danger" (click)="removeRecipeFood(i)">Supprimer cet ingrédient</button>
-                                </div>
-                            </div>
-                        </div>
-                    }
-                </div>
-            }
-        </div>
-
-        <button type="button" class="btn btn-outline-primary" (click)="addNewRecipeFood()">Ajouter un ingrédient</button>
-    </fieldset>
-
-    <!-- Recipe Sub-Recipes Section -->
-    <fieldset class="mb-5 pb-4 border-bottom">
-        <legend class="h5 mb-3">Sous-recettes</legend>
-
-        <div formArrayName="recipeSubRecipes">
-            @if (recipeSubRecipesArray.length > 0) {
-                <div class="list-group mb-3">
-                    @for (subRecipe of recipeSubRecipesArray.controls; let i = $index; track subRecipe) {
-                        <div [formGroupName]="i" class="list-group-item p-3">
-                            <div class="row g-2">
-                                <div class="col-12 col-md-8">
-                                    <label [for]="'child-recipe-id-' + i" class="form-label">Recette <span class="text-danger">*</span></label>
-                                    <select [id]="'child-recipe-id-' + i" class="form-select" formControlName="childRecipeId" required>
-                                        <option value="">Sélectionner une recette</option>
-                                        @for (r of recipes(); track r.id) {
-                                            <option [value]="r.id">{{ r.name }}</option>
-                                        }
-                                    </select>
-                                </div>
-                                <div class="col-12 col-md-4">
-                                    <label [for]="'sub-recipe-quantity-' + i" class="form-label">Quantité <span class="text-danger">*</span></label>
-                                    <input [id]="'sub-recipe-quantity-' + i" type="number" class="form-control" formControlName="quantity" required min="0.1" step="0.1">
-                                </div>
-                                <div class="col-12">
-                                    <button type="button" class="btn btn-sm btn-outline-danger" (click)="removeSubRecipe(i)">Supprimer cette sous-recette</button>
+            <div formArrayName="recipeFoods">
+                @if (recipeFoodsArray.length > 0) {
+                    <div class="list-group mb-3">
+                        @for (food of recipeFoodsArray.controls; let i = $index; track food) {
+                            <div [formGroupName]="i" class="list-group-item p-3">
+                                <div class="row g-2">
+                                    <div class="col-12 col-md-5">
+                                        <label [for]="'food-id-' + i" class="form-label">Ingrédient <span class="text-danger">*</span></label>
+                                        <select [id]="'food-id-' + i" class="form-select" formControlName="foodId" required>
+                                            <option value="" disabled>Sélectionner un ingrédient</option>
+                                            @for (f of foods(); track f.id) {
+                                                <option [value]="f.id">{{ f.name }}</option>
+                                            }
+                                        </select>
+                                    </div>
+                                    <div class="col-12 col-md-4">
+                                        <label [for]="'measure-id-' + i" class="form-label">Portion <span class="text-danger">*</span></label>
+                                        <select [id]="'measure-id-' + i" class="form-select" formControlName="measureId" required>
+                                            <option value="" disabled>Sélectionner une portion</option>
+                                            @for (m of getMeasuresForFood(food.get('foodId')?.value); track m.id) {
+                                                <option [value]="m.id">{{ m.label }}</option>
+                                            }
+                                        </select>
+                                    </div>
+                                    <div class="col-12 col-md-2">
+                                        <label [for]="'quantity-' + i" class="form-label">Quantité <span class="text-danger">*</span></label>
+                                        <input [id]="'quantity-' + i" type="number" class="form-control" formControlName="quantity" required min="0.1" step="0.1">
+                                    </div>
+                                    <div class="col-12 col-md-1 d-flex align-items-end">
+                                        <button type="button" class="btn btn-sm btn-outline-danger" (click)="removeRecipeFood(i)">X</button>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    }
-                </div>
-            }
+                        }
+                    </div>
+                }
+            </div>
+
+            <button type="button" class="btn btn-outline-primary" (click)="addNewRecipeFood()">Ajouter un ingrédient</button>
+        </fieldset>
+
+        <!-- Recipe Sub-Recipes Section -->
+        <fieldset class="mb-5 pb-4 border-bottom">
+            <legend class="h5 mb-3">Sous-recettes</legend>
+
+            <div formArrayName="recipeSubRecipes">
+                @if (recipeSubRecipesArray.length > 0) {
+                    <div class="list-group mb-3">
+                        @for (subRecipe of recipeSubRecipesArray.controls; let i = $index; track subRecipe) {
+                            <div [formGroupName]="i" class="list-group-item p-3">
+                                <div class="row g-2">
+                                    <div class="col-12 col-md-8">
+                                        <label [for]="'child-recipe-id-' + i" class="form-label">Recette <span class="text-danger">*</span></label>
+                                        <select [id]="'child-recipe-id-' + i" class="form-select" formControlName="childRecipeId" required>
+                                            <option value="">Sélectionner une recette</option>
+                                            @for (r of recipes(); track r.id) {
+                                                <option [value]="r.id">{{ r.name }}</option>
+                                            }
+                                        </select>
+                                    </div>
+                                    <div class="col-12 col-md-4">
+                                        <label [for]="'sub-recipe-quantity-' + i" class="form-label">Quantité <span class="text-danger">*</span></label>
+                                        <input [id]="'sub-recipe-quantity-' + i" type="number" class="form-control" formControlName="quantity" required min="0.1" step="0.1">
+                                    </div>
+                                    <div class="col-12">
+                                        <button type="button" class="btn btn-sm btn-outline-danger" (click)="removeSubRecipe(i)">Supprimer cette sous-recette</button>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+
+            <button type="button" class="btn btn-outline-primary" (click)="addNewSubRecipe()">Ajouter une sous-recette</button>
+        </fieldset>
+
+        <!-- Submit Buttons -->
+        <div class="d-flex gap-2 bg-white">
+            <a class="btn btn-secondary" [routerLink]="['/recipes', id()]">Annuler</a>
+            <button type="submit" class="btn btn-primary" [disabled]="recipeForm.invalid">Enregistrer</button>
         </div>
-
-        <button type="button" class="btn btn-outline-primary" (click)="addNewSubRecipe()">Ajouter une sous-recette</button>
-    </fieldset>
-
-    <!-- Submit Buttons -->
-    <div class="d-flex gap-2">
-        <a class="btn btn-secondary" [routerLink]="['/recipes', id()]">Annuler</a>
-        <button type="submit" class="btn btn-primary" [disabled]="recipeForm.invalid">Enregistrer</button>
-    </div>
-</form>
+    </form>
 </div>

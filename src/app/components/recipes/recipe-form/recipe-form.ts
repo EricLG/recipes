@@ -10,14 +10,15 @@ import {
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-import { of } from 'rxjs';
+import { of, startWith } from 'rxjs';
 import { filter, map, switchMap } from 'rxjs/operators';
 
 import { RecipeCategory, RecipeSeason, seasonTranslations, recipeCategoryTranslations, RecipeVegetarianStatus, recipeVegetarianStatusTranslations, RecipePreparationTime, recipePreparationTimeTranslations, RecipeStatus, recipeStatusTranslations } from '../../../enums/recipes.enum';
-import { MeasureDto } from '../../../models/food';
+import { MeasureDto, NutrientsDto } from '../../../models/food';
 import { RecipeDto } from '../../../models/recipe';
 import { FoodService } from '../../foods/food.service';
 import { MeasureService } from '../../foods/measure.service';
+import { RecipeTotalNutritionalsValues } from '../recipe-total-nutritionals-values/recipe-total-nutritionals-values';
 import { RecipeService } from '../recipe.service';
 
 @Component({
@@ -26,6 +27,7 @@ import { RecipeService } from '../recipe.service';
         CommonModule,
         RouterModule,
         ReactiveFormsModule,
+        RecipeTotalNutritionalsValues,
     ],
     templateUrl: './recipe-form.html',
     styleUrl: './recipe-form.scss',
@@ -33,30 +35,24 @@ import { RecipeService } from '../recipe.service';
 })
 export class RecipeForm {
 
-    private route = inject(ActivatedRoute);
-    private fb = inject(FormBuilder);
-    private router = inject(Router);
-    private svcRecipe = inject(RecipeService);
-    private svcFood = inject(FoodService);
-    private svcMeasure = inject(MeasureService);
+    private readonly route = inject(ActivatedRoute);
+    private readonly fb = inject(FormBuilder);
+    private readonly router = inject(Router);
+    private readonly svcRecipe = inject(RecipeService);
+    private readonly svcFood = inject(FoodService);
+    private readonly svcMeasure = inject(MeasureService);
 
-    // Get recipe ID from route parameters
     private readonly id$ = this.route.paramMap.pipe(
         map(p => p.get('id')),
         filter((id): id is string => id !== null)
     );
     public readonly id = toSignal(this.id$, { initialValue: null });
 
-    // Fetch recipe data if editing
     private readonly recipe$ = this.id$.pipe(
         switchMap(id => id ? this.svcRecipe.getDetailRecipe(id) : of(null))
     );
     public readonly recipe = toSignal(this.recipe$, { initialValue: null });
-
-    // Fetch available foods
     public readonly foods = toSignal(this.svcFood.getAll(), { initialValue: [] });
-
-    // Fetch all recipes
     private readonly allRecipes = toSignal(this.svcRecipe.getAll(), { initialValue: [] });
 
     // Fetch available recipes (excluding current one)
@@ -100,12 +96,78 @@ export class RecipeForm {
         preparationTime: [null as number | null],
         kitchenTools: [''],
         remark: [''],
-        recipeFoods: this.fb.array([]),
-        recipeSubRecipes: this.fb.array([]),
+        recipeFoods: this.fb.array<FormGroup>([]),
+        recipeSubRecipes: this.fb.array<FormGroup>([]),
     });
 
     public readonly recipeFoodsArray = this.recipeForm.get('recipeFoods') as FormArray;
     public readonly recipeSubRecipesArray = this.recipeForm.get('recipeSubRecipes') as FormArray;
+
+    private readonly formValue$ = this.recipeForm.valueChanges.pipe(
+        startWith(this.recipeForm.value)
+    );
+
+    private readonly formValue = toSignal(this.formValue$, { initialValue: this.recipeForm.value as Record<string, unknown> });
+
+    public readonly recipeNutrients = computed(() => {
+        const formValue = this.formValue() as {
+            recipeFoods?: Array<{ foodId: string; measureId: string; quantity: number | null }>;
+            servings?: number;
+        };
+        const recipeFoods = formValue.recipeFoods || [];
+        const servings = formValue.servings && formValue.servings >= 1 ? formValue.servings : 1;
+
+        if (!recipeFoods || recipeFoods.length === 0) {
+            return null;
+        }
+
+        const totals: NutrientsDto = {
+            energyKcal: 0,
+            proteins: 0,
+            fats: 0,
+            carbohydrates: 0,
+            sugars: 0,
+            fibers: 0,
+            salt: 0,
+            saturatedFattyAcids: 0,
+        };
+
+        const foods = this.foods();
+        const measures = this.measures();
+
+        recipeFoods.forEach((recipeFood: { foodId: string; measureId: string; quantity: number | null }) => {
+            const food = foods.find(f => f.id === recipeFood.foodId);
+            const measure = measures.find(m => m.id === recipeFood.measureId);
+            const quantity = recipeFood.quantity;
+
+            if (!food || !measure || quantity == null) {
+                return;
+            }
+
+            const factor = (quantity * measure.grams) / 100;
+            const n = food.nutrientsPer100;
+
+            totals.energyKcal += n.energyKcal * factor;
+            totals.proteins += n.proteins * factor;
+            totals.fats += n.fats * factor;
+            totals.carbohydrates += n.carbohydrates * factor;
+            totals.sugars += n.sugars * factor;
+            totals.fibers += n.fibers * factor;
+            totals.salt += n.salt * factor;
+            totals.saturatedFattyAcids += n.saturatedFattyAcids * factor;
+        });
+
+        totals.energyKcal /= servings;
+        totals.proteins /= servings;
+        totals.fats /= servings;
+        totals.carbohydrates /= servings;
+        totals.sugars /= servings;
+        totals.fibers /= servings;
+        totals.salt /= servings;
+        totals.saturatedFattyAcids /= servings;
+
+        return totals;
+    });
 
     // Populate form when recipe data is available
     constructor() {
@@ -126,7 +188,6 @@ export class RecipeForm {
                 // Add existing recipeFoods (include id for updates per Option C strict mode)
                 if (recipeFoods && recipeFoods.length > 0) {
                     recipeFoods.forEach(rf => {
-                        console.log('Adding recipe food to form array:', rf); // Debug log
                         this.recipeFoodsArray.push(this.fb.group({
                             id: [rf.id],  // Include ID for update operations
                             foodId: [rf.food.id, Validators.required],
@@ -245,26 +306,31 @@ export class RecipeForm {
         } as Omit<RecipeDto, 'id'>;
 
         // Normalize recipeFoods: remove `id` property when null/undefined (REST best practice)
-        const recipeFoods = (data.recipeFoods || []).map((rf: any) => {
-            const copy: any = {
-                foodId: rf.foodId,
-                measureId: rf.measureId,
-                quantity: rf.quantity,
+        type RecipeFoodFormValue = { id?: string | null; foodId: string; measureId: string; quantity: number };
+        type RecipeSubRecipeFormValue = { id?: string | null; childRecipeId: string; quantity: number };
+
+        const recipeFoods = (data.recipeFoods || []).map((rf: unknown) => {
+            const recipeFood = rf as RecipeFoodFormValue;
+            const copy: Record<string, unknown> = {
+                foodId: recipeFood.foodId,
+                measureId: recipeFood.measureId,
+                quantity: recipeFood.quantity,
             };
-            if (rf.id !== null && rf.id !== undefined && rf.id !== '') {
-                copy.id = rf.id;
+            if (recipeFood.id !== null && recipeFood.id !== undefined && recipeFood.id !== '') {
+                (copy as Record<string, string | number>)['id'] = recipeFood.id as string;
             }
             return copy;
         });
 
         // Normalize recipeSubRecipes: remove `id` property when null/undefined (REST best practice)
-        const recipeSubRecipes = (data.recipeSubRecipes || []).map((sr: any) => {
-            const copy: any = {
-                childRecipeId: sr.childRecipeId,
-                quantity: sr.quantity,
+        const recipeSubRecipes = (data.recipeSubRecipes || []).map((sr: unknown) => {
+            const subRecipe = sr as RecipeSubRecipeFormValue;
+            const copy: Record<string, unknown> = {
+                childRecipeId: subRecipe.childRecipeId,
+                quantity: subRecipe.quantity,
             };
-            if (sr.id !== null && sr.id !== undefined && sr.id !== '') {
-                copy.id = sr.id;
+            if (subRecipe.id !== null && subRecipe.id !== undefined && subRecipe.id !== '') {
+                (copy as Record<string, string | number>)['id'] = subRecipe.id as string;
             }
             return copy;
         });
