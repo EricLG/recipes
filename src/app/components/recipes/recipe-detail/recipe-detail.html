@@ -104,62 +104,7 @@
 
                 <div class="div8">
                     <h5><app-icon name="detail_recipe_nutrients.png" alt="Valeurs nutritionnelles" class="d-inline me-1"></app-icon>Valeurs nutritionnelles (par portion)</h5>
-                    @if (totalNutrients(); as nutrients) {
-                        <table class="w-100">
-                            <tbody>
-                                <tr class="bg-cream-35">
-                                    <td class="ps-3 fw-bold">Énergie</td>
-                                    <td>{{ nutrients.energyKcal.toFixed(0) }} kcal</td>
-                                    <td class="text-center"></td>
-                                </tr>
-                                <tr>
-                                    <td class="ps-3 fw-bold">Protéines</td>
-                                    <td>{{ nutrients.proteins.toFixed(0) }} g</td>
-                                    <td class="text-center">
-                                        <i class="bi" [ngClass]="getProteinsStatus(nutrients.proteins, nutrients.energyKcal)"></i>
-                                    </td>
-                                </tr>
-                                <tr class="bg-cream-35">
-                                    <td class="ps-3 fw-bold">Lipides</td>
-                                    <td>{{ nutrients.fats.toFixed(0) }} g</td>
-                                    <td class="text-center fw-bold">
-                                        <i class="bi" [ngClass]="getFatsStatus(nutrients.fats, nutrients.energyKcal)"></i>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td class="ps-4">(dont acides gras saturés)</td>
-                                    <td>{{ nutrients.saturatedFattyAcids.toFixed(1) }} g</td>
-                                    <td></td>
-                                </tr>
-                                <tr class="bg-cream-35">
-                                    <td class="ps-3 fw-bold">Glucides</td>
-                                    <td>{{ nutrients.carbohydrates.toFixed(0) }} g</td>
-                                    <td></td>
-                                </tr>
-                                <tr>
-                                    <td class="ps-4">(dont sucres totaux)</td>
-                                    <td>{{ nutrients.sugars.toFixed(0) }} g</td>
-                                    <td></td>
-                                </tr>
-                                <tr class="bg-cream-35">
-                                    <td class="ps-3 fw-bold">Fibres</td>
-                                    <td>{{ nutrients.fibers.toFixed(0) }} g</td>
-                                    <td>
-                                        <i class="bi" [ngClass]="getFibersStatus(nutrients.fibers, nutrients.energyKcal)"></i>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td class="ps-3 fw-bold">Sel</td>
-                                    <td>{{ nutrients.salt.toFixed(1) }} g</td>
-                                    <td>
-                                        <i class="bi" [ngClass]="getSaltStatus(nutrients.salt)"></i>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    } @else {
-                        <div>Calcul en cours...</div>
-                    }
+                    <recipe-total-nutritionals-values [nutrients]="totalNutrients()"></recipe-total-nutritionals-values>
                 </div>
             </div>
         </div>
@@ -170,7 +115,7 @@
         </div>
 
         @if (isAdmin) {
-            <div class="mt-3 hstack gap-3">
+            <div class="my-3 hstack gap-3 float-end">
                 <button class="btn btn-outline-secondary" (click)="edit()">Modifier</button>
                 <button class="btn btn-outline-danger" (click)="remove()">Supprimer</button>
             </div>
