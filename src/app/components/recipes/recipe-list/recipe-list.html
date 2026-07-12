@@ -2,6 +2,10 @@
     <h2><app-icon class="me-2" name="list_recipes.png" alt="Liste des recettes"></app-icon>Recettes</h2>
 </div>
 
+<div class="recipes-grid my-3">
+    <ng-select style="width: 235px;" class="ng-select-brown" [items]="sortOptions" bindValue="id" [multiple]="false" placeholder="Trier par" [searchable]="false" [closeOnSelect]="false" [ngModel]="selectedSort()" (ngModelChange)="onSortChange($event)"></ng-select>
+</div>
+
 <div class="recipes-status mt-3">
     @if (isAdmin) {
         @if (draftRecipes$ | async; as draftRecipes) {
