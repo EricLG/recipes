@@ -1,13 +1,13 @@
 // src/styles/_ng-select.scss
-// règles génériques pour un ng‑select “vert” avec texte/icone blancs
-@mixin ng-select-green {
-    .ng-select.customNgSelect {
+// règles génériques pour les ng-select avec thème paramétrable
+@mixin ng-select-theme($name, $text-color, $background-color) {
+    .ng-select.ng-select-#{$name} {
         .ng-option,
         .ng-placeholder,
         .ng-multi-label-tmp,
         .ng-value,
         .ng-clear-wrapper {
-            color: white !important;
+            color: $text-color !important;
         }
 
         .ng-placeholder {
@@ -23,24 +23,32 @@
         }
 
         .ng-arrow {
-            border-top-color: white !important;
+            border-top-color: $text-color !important;
         }
 
         .ng-select-container {
-            background-color: var(--green);
+            background-color: $background-color;
         }
 
         .ng-option {
-            background-color: var(--green)!important;
+            background-color: $background-color !important;
             &.ng-option-marked {
-                font-weight: 900!important;
+                font-weight: 900 !important;
+            }
+        }
+
+        &.ng-select-opened {
+            .ng-arrow {
+                border-bottom-color: $text-color !important;
             }
         }
     }
+}
 
-    .ng-select.ng-select-opened {
-        .ng-arrow {
-            border-bottom-color: white !important;
-        }
-    }
+@mixin ng-select-green {
+    @include ng-select-theme('green', white, var(--green));
+}
+
+@mixin ng-select-brown {
+    @include ng-select-theme('brown', var(--brown), white);
 }

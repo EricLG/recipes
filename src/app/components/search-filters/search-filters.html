@@ -9,18 +9,18 @@
         </div>
         <!-- filtres -->
         <div class="filters-grid">
-            <ng-select class="customNgSelect select-form" [items]="categories" bindValue="id" placeholder="Catégorie" [searchable]="false" [closeOnSelect]="false" formControlName="category"> </ng-select>
-            <ng-select class="customNgSelect select-form" [items]="seasons" bindValue="id" [multiple]="true" placeholder="Saison" [searchable]="false" [closeOnSelect]="false" formControlName="seasons">
+            <ng-select class="ng-select-green select-form" [items]="categories" bindValue="id" placeholder="Catégorie" [searchable]="false" [closeOnSelect]="false" formControlName="category"> </ng-select>
+            <ng-select class="ng-select-green select-form" [items]="seasons" bindValue="id" [multiple]="true" placeholder="Saison" [searchable]="false" [closeOnSelect]="false" formControlName="seasons">
                 <ng-template ng-multi-label-tmp let-items="items">
                     <div class="ng-multi-label-tmp">Saison ({{ items.length }})</div></ng-template>
                 <ng-template ng-option-tmp let-item="item" let-item$="item$" let-index="index"><input type="checkbox" id="opt-season-{{ index }}" class="me-1" [checked]="item$.selected">{{ item.label }}</ng-template>
             </ng-select>
-            <ng-select class="customNgSelect select-form" [items]="vegetarianStatusOptions" bindValue="id" [multiple]="true" placeholder="Type" [searchable]="false" [closeOnSelect]="false" formControlName="vegetarianStatus">
+            <ng-select class="ng-select-green select-form" [items]="vegetarianStatusOptions" bindValue="id" [multiple]="true" placeholder="Type" [searchable]="false" [closeOnSelect]="false" formControlName="vegetarianStatus">
                 <ng-template ng-multi-label-tmp let-items="items">
                     <div class="ng-multi-label-tmp">Type ({{ items.length }})</div></ng-template>
                 <ng-template ng-option-tmp let-item="item" let-item$="item$" let-index="index"><input type="checkbox" id="opt-type-{{ index }}" class="me-1" [checked]="item$.selected">{{ item.label }}</ng-template>
             </ng-select>
-            <ng-select class="customNgSelect select-form" [items]="preparationTimeOptions" bindValue="id" placeholder="Temps total" [searchable]="false" [clearable]="true" formControlName="preparationTime"> </ng-select>
+            <ng-select class="ng-select-green select-form" [items]="preparationTimeOptions" bindValue="id" placeholder="Temps total" [searchable]="false" [clearable]="true" formControlName="preparationTime"> </ng-select>
         </div>
     </form>
 </div>

@@ -11,6 +11,7 @@ export interface RecipeDto {
     category: RecipeCategory;
     servings: number;
     preparationTime?: number;
+    createdAt?: string;
     kitchenTools?: string
     remark?: string
     imageUrl: string
