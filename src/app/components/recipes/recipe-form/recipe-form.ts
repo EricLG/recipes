@@ -10,12 +10,12 @@ import {
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-import { of, startWith } from 'rxjs';
+import { forkJoin, of, startWith } from 'rxjs';
 import { filter, map, switchMap } from 'rxjs/operators';
 
 import { RecipeCategory, RecipeSeason, seasonTranslations, recipeCategoryTranslations, RecipeVegetarianStatus, recipeVegetarianStatusTranslations, RecipePreparationTime, recipePreparationTimeTranslations, RecipeStatus, recipeStatusTranslations } from '../../../enums/recipes.enum';
 import { MeasureDto, NutrientsDto } from '../../../models/food';
-import { RecipeDto } from '../../../models/recipe';
+import { DetailedRecipeDTO, RecipeDto } from '../../../models/recipe';
 import { FoodService } from '../../foods/food.service';
 import { MeasureService } from '../../foods/measure.service';
 import { RecipeTotalNutritionalsValues } from '../recipe-total-nutritionals-values/recipe-total-nutritionals-values';
@@ -108,20 +108,10 @@ export class RecipeForm {
     );
 
     private readonly formValue = toSignal(this.formValue$, { initialValue: this.recipeForm.value as Record<string, unknown> });
+    private readonly subRecipeDetails = signal<Record<string, DetailedRecipeDTO | null>>({});
 
-    public readonly recipeNutrients = computed(() => {
-        const formValue = this.formValue() as {
-            recipeFoods?: Array<{ foodId: string; measureId: string; quantity: number | null }>;
-            servings?: number;
-        };
-        const recipeFoods = formValue.recipeFoods || [];
-        const servings = formValue.servings && formValue.servings >= 1 ? formValue.servings : 1;
-
-        if (!recipeFoods || recipeFoods.length === 0) {
-            return null;
-        }
-
-        const totals: NutrientsDto = {
+    private createEmptyNutrients(): NutrientsDto {
+        return {
             energyKcal: 0,
             proteins: 0,
             fats: 0,
@@ -131,13 +121,95 @@ export class RecipeForm {
             salt: 0,
             saturatedFattyAcids: 0,
         };
+    }
 
+    private addNutrients(target: NutrientsDto, source: NutrientsDto): void {
+        target.energyKcal += source.energyKcal;
+        target.proteins += source.proteins;
+        target.fats += source.fats;
+        target.carbohydrates += source.carbohydrates;
+        target.sugars += source.sugars;
+        target.fibers += source.fibers;
+        target.salt += source.salt;
+        target.saturatedFattyAcids += source.saturatedFattyAcids;
+    }
+
+    private computeNutrientsFromRecipe(
+        recipe: DetailedRecipeDTO | null,
+        subRecipeDetails: Record<string, DetailedRecipeDTO | null>,
+        stack = new Set<string>(),
+    ): NutrientsDto {
+        if (!recipe) {
+            return this.createEmptyNutrients();
+        }
+
+        if (stack.has(recipe.id)) {
+            return this.createEmptyNutrients();
+        }
+
+        stack.add(recipe.id);
+        const totals = this.createEmptyNutrients();
+
+        recipe.recipeFoods?.forEach((recipeFood) => {
+            const factor = (recipeFood.quantity * recipeFood.measure.grams) / 100;
+            const nutrients = recipeFood.food.nutrientsPer100;
+
+            totals.energyKcal += nutrients.energyKcal * factor;
+            totals.proteins += nutrients.proteins * factor;
+            totals.fats += nutrients.fats * factor;
+            totals.carbohydrates += nutrients.carbohydrates * factor;
+            totals.sugars += nutrients.sugars * factor;
+            totals.fibers += nutrients.fibers * factor;
+            totals.salt += nutrients.salt * factor;
+            totals.saturatedFattyAcids += nutrients.saturatedFattyAcids * factor;
+        });
+
+        recipe.recipeSubRecipes?.forEach((subRecipe) => {
+            const childRecipe = subRecipeDetails[subRecipe.childRecipeId] ?? subRecipe.childRecipe;
+            if (!childRecipe) {
+                return;
+            }
+
+            const childTotals = this.computeNutrientsFromRecipe(childRecipe, subRecipeDetails, stack);
+            const scale = childRecipe.servings ? (subRecipe.quantity / childRecipe.servings) : subRecipe.quantity;
+            this.addNutrients(totals, {
+                ...childTotals,
+                energyKcal: childTotals.energyKcal * scale,
+                proteins: childTotals.proteins * scale,
+                fats: childTotals.fats * scale,
+                carbohydrates: childTotals.carbohydrates * scale,
+                sugars: childTotals.sugars * scale,
+                fibers: childTotals.fibers * scale,
+                salt: childTotals.salt * scale,
+                saturatedFattyAcids: childTotals.saturatedFattyAcids * scale,
+            });
+        });
+
+        stack.delete(recipe.id);
+        return totals;
+    }
+
+    public readonly recipeNutrients = computed(() => {
+        const formValue = this.formValue() as {
+            recipeFoods?: Array<{ foodId: string; measureId: string; quantity: number | null }>;
+            recipeSubRecipes?: Array<{ childRecipeId: string; quantity: number | null }>;
+            servings?: number;
+        };
+        const recipeFoods = formValue.recipeFoods || [];
+        const recipeSubRecipes = formValue.recipeSubRecipes || [];
+        const servings = formValue.servings && formValue.servings >= 1 ? formValue.servings : 1;
+
+        if (recipeFoods.length === 0 && recipeSubRecipes.length === 0) {
+            return null;
+        }
+
+        const totals = this.createEmptyNutrients();
         const foods = this.foods();
         const measures = this.measures();
 
-        recipeFoods.forEach((recipeFood: { foodId: string; measureId: string; quantity: number | null }) => {
-            const food = foods.find(f => f.id === recipeFood.foodId);
-            const measure = measures.find(m => m.id === recipeFood.measureId);
+        recipeFoods.forEach((recipeFood) => {
+            const food = foods.find((item) => item.id === recipeFood.foodId);
+            const measure = measures.find((item) => item.id === recipeFood.measureId);
             const quantity = recipeFood.quantity;
 
             if (!food || !measure || quantity == null) {
@@ -145,16 +217,37 @@ export class RecipeForm {
             }
 
             const factor = (quantity * measure.grams) / 100;
-            const n = food.nutrientsPer100;
+            const nutrients = food.nutrientsPer100;
 
-            totals.energyKcal += n.energyKcal * factor;
-            totals.proteins += n.proteins * factor;
-            totals.fats += n.fats * factor;
-            totals.carbohydrates += n.carbohydrates * factor;
-            totals.sugars += n.sugars * factor;
-            totals.fibers += n.fibers * factor;
-            totals.salt += n.salt * factor;
-            totals.saturatedFattyAcids += n.saturatedFattyAcids * factor;
+            totals.energyKcal += nutrients.energyKcal * factor;
+            totals.proteins += nutrients.proteins * factor;
+            totals.fats += nutrients.fats * factor;
+            totals.carbohydrates += nutrients.carbohydrates * factor;
+            totals.sugars += nutrients.sugars * factor;
+            totals.fibers += nutrients.fibers * factor;
+            totals.salt += nutrients.salt * factor;
+            totals.saturatedFattyAcids += nutrients.saturatedFattyAcids * factor;
+        });
+
+        recipeSubRecipes.forEach((recipeSubRecipe) => {
+            const childRecipe = this.subRecipeDetails()[recipeSubRecipe.childRecipeId];
+            if (!childRecipe || recipeSubRecipe.quantity == null) {
+                return;
+            }
+
+            const childTotals = this.computeNutrientsFromRecipe(childRecipe, this.subRecipeDetails());
+            const scale = childRecipe.servings ? (recipeSubRecipe.quantity / childRecipe.servings) : recipeSubRecipe.quantity;
+            this.addNutrients(totals, {
+                ...childTotals,
+                energyKcal: childTotals.energyKcal * scale,
+                proteins: childTotals.proteins * scale,
+                fats: childTotals.fats * scale,
+                carbohydrates: childTotals.carbohydrates * scale,
+                sugars: childTotals.sugars * scale,
+                fibers: childTotals.fibers * scale,
+                salt: childTotals.salt * scale,
+                saturatedFattyAcids: childTotals.saturatedFattyAcids * scale,
+            });
         });
 
         totals.energyKcal /= servings;
@@ -187,7 +280,7 @@ export class RecipeForm {
 
                 // Add existing recipeFoods (include id for updates per Option C strict mode)
                 if (recipeFoods && recipeFoods.length > 0) {
-                    recipeFoods.forEach(rf => {
+                    recipeFoods.forEach((rf) => {
                         this.recipeFoodsArray.push(this.fb.group({
                             id: [rf.id],  // Include ID for update operations
                             foodId: [rf.food.id, Validators.required],
@@ -199,7 +292,7 @@ export class RecipeForm {
 
                 // Add existing recipeSubRecipes (include id for updates per Option C strict mode)
                 if (recipeSubRecipes && recipeSubRecipes.length > 0) {
-                    recipeSubRecipes.forEach(sr => {
+                    recipeSubRecipes.forEach((sr) => {
                         this.recipeSubRecipesArray.push(this.fb.group({
                             id: [sr.id],  // Include ID for update operations
                             childRecipeId: [sr.childRecipe.id, Validators.required],
@@ -208,6 +301,42 @@ export class RecipeForm {
                     });
                 }
             }
+        });
+
+        effect(() => {
+            const formValue = this.formValue() as {
+                recipeSubRecipes?: Array<{ childRecipeId?: string | null }>;
+            };
+            const recipeSubRecipes = formValue.recipeSubRecipes || [];
+            const childRecipeIds = [
+                ...new Set(
+                    recipeSubRecipes
+                        .map((recipeSubRecipe) => recipeSubRecipe.childRecipeId)
+                        .filter((childRecipeId): childRecipeId is string => Boolean(childRecipeId))
+                ),
+            ];
+
+            if (childRecipeIds.length === 0) {
+                this.subRecipeDetails.set({});
+                return;
+            }
+
+            const subscription = forkJoin(
+                childRecipeIds.map((childRecipeId) => this.svcRecipe.getDetailRecipe(childRecipeId))
+            ).subscribe({
+                next: (details) => {
+                    const resolvedDetails = Object.fromEntries(
+                        childRecipeIds.map((childRecipeId, index) => [childRecipeId, details[index] ?? null])
+                    ) as Record<string, DetailedRecipeDTO | null>;
+                    this.subRecipeDetails.set(resolvedDetails);
+                },
+                error: (error) => {
+                    console.error('Erreur chargement sous-recettes:', error);
+                    this.subRecipeDetails.set({});
+                }
+            });
+
+            return () => subscription.unsubscribe();
         });
     }
 
